@@ -26,6 +26,11 @@ public class Monster : Character {
         eggSpawnChance = egg;
     }
 
+    public override string ToString()
+    {
+        return name + ": Health: "+current_health+" Stats:"+ stats.ToString()+" Type:"+type.ToString();
+    }
+
     // For now just move randomly, later we will want to add features such as target player and movemeent types like patrol
     public void moveMonster(Map map, Player player)
     {

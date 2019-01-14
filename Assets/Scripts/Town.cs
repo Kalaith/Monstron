@@ -23,20 +23,33 @@ public class Town : MonoBehaviour {
 
     public Dropdown dropdown1;
     public Dropdown dropdown2;
-    public Image sprite1;
-    public Image sprite2;
 
     SpriteGenerator sg;
 
     Monster[] monster;
 
+    public GameObject monster1;
+    public GameObject monster2;
+
     public void updateBreedSprites()
     {
         Debug.Log("Updating Sprites");
-        sprite1.sprite = sg.addXMirror(sg.bytesToSprite(monster[dropdown1.value].texture));
-        sprite1.color = new Color(monster[dropdown1.value].stats.x, monster[dropdown1.value].stats.y, monster[dropdown1.value].stats.z, 255);
-        sprite2.sprite = sg.addXMirror(sg.bytesToSprite(monster[dropdown2.value].texture));
-        sprite2.color = new Color(monster[dropdown2.value].stats.x, monster[dropdown2.value].stats.y, monster[dropdown2.value].stats.z, 255);
+
+        Monster mon1 = monster[dropdown1.value];
+        Monster mon2 = monster[dropdown2.value];
+
+        Sprite sprite1 = sg.addXMirror(sg.bytesToSprite(mon1.texture));
+        Sprite sprite2 = sg.addXMirror(sg.bytesToSprite(mon2.texture));
+
+        monster1.GetComponent<Image>().sprite = sprite1;
+        monster1.GetComponent<Image>().color = new Color32((byte)mon1.stats.x, (byte)mon1.stats.y, (byte)mon1.stats.z, 255); // monster.stats.x/255, monster.stats.y/255, monster.stats.z/255);
+
+        monster2.GetComponent<Image>().sprite = sprite2;
+        monster2.GetComponent<Image>().color = new Color32((byte)mon2.stats.x, (byte)mon2.stats.y, (byte)mon2.stats.z, 255); // monster.stats.x/255, monster.stats.y/255, monster.stats.z/255);
+
+        Debug.Log("Monster 1"+monster[dropdown1.value].ToString());
+        Debug.Log("Monster 1"+monster[dropdown2.value].ToString());
+
     }
 
     public void breedMonsters()
