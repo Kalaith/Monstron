@@ -28,7 +28,7 @@ public class Corral {
     }
 
 
-    public void breedMonsters(Monster m1, Monster m2)
+    public Monster breedMonsters(Monster m1, Monster m2)
     {
         int r = 0;
         int g = 0;
@@ -53,6 +53,7 @@ public class Corral {
         m3.texture = sg.tex2dtobytes(sg.mergeTextures(sg.bytestotex2d(m1.texture), sg.bytestotex2d(m2.texture)));
 
         monsters.Add(m3);
+        return m3;
     }
 
     public int halfValue(int v1, int v2)

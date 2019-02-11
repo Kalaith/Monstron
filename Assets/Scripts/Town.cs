@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using System;
 
 public class Town : MonoBehaviour {
 
@@ -10,8 +11,13 @@ public class Town : MonoBehaviour {
     public GameObject dialog;
     public GameObject corral;
     public GameObject breed;
+    public GameObject breedEmpty;
     public GameObject corralContent;
     public GameObject monPrefab;
+
+    public GameObject breedResults;
+    public GameObject breedResultsName;
+    public GameObject breedResultsSprite;
 
     public void enterDungeon()
     {
@@ -55,6 +61,8 @@ public class Town : MonoBehaviour {
         textObject.text = "";
         corral.SetActive(false);
         breed.SetActive(true);
+        breedResults.SetActive(false);
+
         monster = PlayerController.playerC.corral.monsters.ToArray();
 
         sg = ScriptableObject.CreateInstance<SpriteGenerator>();
@@ -62,25 +70,40 @@ public class Town : MonoBehaviour {
         List<string> m_DropOptions = new List<string>();
         Sprite sprite = null;
         foreach (Monster mon in monster) {
-            m_DropOptions.Add(mon.name);
-            if(sprite == null)
+            // Do not add baby monsters to be breed, move the min value into a config file
+            if (mon.level >= 3)
             {
-                sprite = sg.addXMirror(sg.bytesToSprite(mon.texture));
-                
+                m_DropOptions.Add(mon.name);
+                if (sprite == null)
+                {
+                    sprite = sg.addXMirror(sg.bytesToSprite(mon.texture));
+
+                }
             }
         }
 
-        //Clear the old options of the Dropdown menu
-        dropdown1.ClearOptions();
-        //Add the options created in the List above
-        dropdown1.AddOptions(m_DropOptions);
+        // We only have 0-1 monsters available to breed.
+        if(m_DropOptions.Count > 1)
+        {
+            //Clear the old options of the Dropdown menu
+            dropdown1.ClearOptions();
+            //Add the options created in the List above
+            dropdown1.AddOptions(m_DropOptions);
 
-        //Clear the old options of the Dropdown menu
-        dropdown2.ClearOptions();
-        //Add the options created in the List above
-        dropdown2.AddOptions(m_DropOptions);
+            //Clear the old options of the Dropdown menu
+            dropdown2.ClearOptions();
+            //Add the options created in the List above
+            dropdown2.AddOptions(m_DropOptions);
 
-        updateBreedSprites();
+            updateBreedSprites();
+        } else
+        {
+            Debug.Log("There are no available breeding monsters, find more and level them up.");
+            breed.SetActive(false);
+            breedEmpty.SetActive(true);
+        }
+
+        
 
     }
 
@@ -92,8 +115,21 @@ public class Town : MonoBehaviour {
         } else
         {
             Debug.Log("Breeding");
-            PlayerController.playerC.corral.breedMonsters(monster[dropdown1.value], monster[dropdown2.value]);          
+            Monster mon = PlayerController.playerC.corral.breedMonsters(monster[dropdown1.value], monster[dropdown2.value]);
+            displayResults(mon);
         }
+    }
+
+    private void displayResults(Monster mon)
+    {
+        breedResults.SetActive(true);
+
+        Sprite sprite = sg.addXMirror(sg.bytesToSprite(mon.texture));
+        breedResultsSprite.GetComponent<Image>().sprite = sprite;
+        breedResultsSprite.GetComponent<Image>().color = new Color32((byte)mon.stats.x, (byte)mon.stats.y, (byte)mon.stats.z, 255); // monster.stats.x/255, monster.stats.y/255, monster.stats.z/255);
+
+        breedResultsName.GetComponent<Text>().text = mon.name+" was born.";
+
     }
 
     public void viewCorral()
@@ -102,6 +138,7 @@ public class Town : MonoBehaviour {
 
         corral.SetActive(true);
         breed.SetActive(false);
+        breedEmpty.SetActive(false);
 
         Debug.Log("View Corral");
         // if we have viewed the corral before, wipe it first.
