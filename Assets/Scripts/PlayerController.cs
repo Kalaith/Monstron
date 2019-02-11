@@ -26,6 +26,8 @@ public class PlayerController : MonoBehaviour {
     GameObject playerGO;
     public Sprite playerSprite;
     public Text playerHealth;
+    public Text AbilityUses;
+
     public Corral corral;
 
     public void Start()
@@ -71,6 +73,17 @@ public class PlayerController : MonoBehaviour {
 
     // Update is called once per frame
     void Update () {
+        if (AbilityUses != null && player != null)
+        {
+            Ability a = player.getAbility("Teleport");
+            AbilityUses.text = a.name+": " + a.current_uses + "/" + a.max_uses;
+        }
+        else
+        {
+            GameObject go = GameObject.Find("AbilityUses");
+            if (go != null)
+                AbilityUses = go.GetComponent<Text>();
+        }
 
         if (playerHealth != null && player != null)
         {

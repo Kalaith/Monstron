@@ -51,8 +51,15 @@ public class Player : Character {
     {
         if(abilities.Contains(a))
         {
-            activeAbility = a;
-            usingAbility = true;
+            // allow the ability to be used if current_uses is above 0 or max_users is 0 because it means unlimited uses.
+            if (a.current_uses > 0 || a.max_uses == 0)
+            {
+                activeAbility = a;
+                usingAbility = true;
+            } else
+            {
+                Debug.Log("No uses of ability left");
+            }
         }
     }
 
@@ -66,4 +73,15 @@ public class Player : Character {
         Debug.Log("Player was created!!!!!!!!!!!!!!!!");
     }
 
+    // we can call this and pass in the ability, or assume we are using the current active ability
+    internal void usedAbility(Ability a = null)
+    {
+        if (a == null)
+        {
+            Debug.Log(activeAbility.current_uses);
+            activeAbility.current_uses--;
+            Debug.Log(activeAbility.current_uses);
+            usingAbility = false;
+        }
+    }
 }

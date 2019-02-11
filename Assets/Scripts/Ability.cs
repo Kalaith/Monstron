@@ -16,8 +16,10 @@ public class Ability {
     public int leftRange;
     public int rightRange;
     public CHARACTER_TYPE type;
+    public int max_uses;
+    public int current_uses; // uses available to be used.
 
-    public Ability(string name, bool passive, bool collide, int damage, int range, bool diag, int up, int down, int left, int right, CHARACTER_TYPE type)
+    public Ability(string name, bool passive, bool collide, int damage, int range, bool diag, int up, int down, int left, int right, CHARACTER_TYPE type, int uses)
     {
         this.name = name;
         this.passive = passive;
@@ -30,6 +32,7 @@ public class Ability {
         this.leftRange = left;
         this.rightRange = right;
         this.type = type;
-
+        max_uses = uses;
+        current_uses = uses;
     }
 }

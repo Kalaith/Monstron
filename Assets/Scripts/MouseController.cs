@@ -51,7 +51,7 @@ public class MouseController : MonoBehaviour {
                                     Destroy(selectGO);
                                     PlayerController.playerC.player.x = (int)mouse.x;
                                     PlayerController.playerC.player.y = (int)mouse.y;
-                                    PlayerController.playerC.player.usingAbility = false;
+                                    PlayerController.playerC.player.usedAbility();
 
                                     //Debug.Log("Monsters "+EnemyController.enemyC.monsters.Count);
                                     foreach (Monster monster in EnemyController.enemyC.monsters.Keys)

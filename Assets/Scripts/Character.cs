@@ -23,7 +23,6 @@ public class Character {
     public int next_exp { get; set; }
     public int level { get; set; }
 
-    public int attack { get; set; } // Attack/damage stat how much is removed on each hit.
     public CHARACTER_FACING facing { get; set; }
     
     // the bytes that make up the texture, so it can be saved to disk and not have to be recreated from templates

@@ -40,7 +40,15 @@ public class InputController : MonoBehaviour {
             {
                 if (!PlayerController.playerC.player.usingAbility)
                 {
-                    PlayerController.playerC.player.useAbility(PlayerController.playerC.player.getAbility("Teleport"));
+                    Ability t = PlayerController.playerC.player.getAbility("Teleport");
+                    if (t.current_uses > 0)
+                    {
+                        PlayerController.playerC.player.useAbility(t);
+                        Debug.Log("Using teleport");
+                    } else
+                    {
+                        Debug.Log("Unable to use ability, no uses left.");
+                    }
                 }
             }
 
@@ -52,14 +60,20 @@ public class InputController : MonoBehaviour {
                 }
             }
             
-            // Moves to a new map 
+            // leaves the dungeon
             if (Input.GetKeyUp("x"))
             {
                 // We have reached an teleport.
                 Debug.Log("Choosing to exit");
                 GameController.game.leaveDungeon();
             }
-            
+            // Goto the next level
+            if (Input.GetKeyUp("z"))
+            {
+                GameController.game.unloadMap();
+                GameController.game.loadMap();
+            }
+
 
             if (Input.GetKeyUp("w"))
             {
