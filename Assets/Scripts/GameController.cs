@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -8,6 +9,7 @@ public class GameController : MonoBehaviour {
 
     public static GameController game;
     public int level;
+    public GameObject GameUI;
 
     private void Awake()
     {
@@ -43,7 +45,9 @@ public class GameController : MonoBehaviour {
             Ability teleport = new Ability("Teleport", false, false, 0, 2, true, 0, 0, 0, 0, CHARACTER_TYPE.ALL);
 
             // Create our inital monster
-            Monster m = new Monster(new Point(0, 0), "Slime", 10, CHARACTER_TYPE.MONSTER, new Vector3Int(255, 255, 255), 0);
+            Monster m = new Monster(new Point(0, 0), "SLIME", 10, CHARACTER_TYPE.MONSTER, new Vector3Int(255, 255, 255), 0);
+
+            m.setNextLevel();
 
             m.addAbility(teleport);
             SpriteGenerator sg = ScriptableObject.CreateInstance<SpriteGenerator>();
@@ -66,11 +70,33 @@ public class GameController : MonoBehaviour {
 
     }
 
+    public void leaveDungeon()
+    {
+        unloadMap();
+
+        // if the monster manages to exit the dungeon give them 5 exp per floor.
+        if (PlayerController.playerC.player.current_health > 0)
+        {
+            Debug.Log("Left the dungeon, exp: "+(5*level));
+            PlayerController.playerC.player.current_exp += (5*level);
+            PlayerController.playerC.corral.updateMonster(PlayerController.playerC.player);
+            PlayerController.playerC.player.current_health = PlayerController.playerC.player.max_health;
+        }
+        else
+        {
+            // if the monster died remove it from the corral.
+            PlayerController.playerC.corral.removeMonster(PlayerController.playerC.corral.getMonsterByID(PlayerController.playerC.player.controllingMonster));
+            PlayerController.playerC.player.controllingMonster = 0;
+        }
+
+        SceneManager.LoadScene("Town");
+    }
+
     public void loadMap()
     {
 
         level++;
-        Debug.Log("Loading Level: "+level);
+
 
         if (MapController.mapC != null)
         {
@@ -79,7 +105,7 @@ public class GameController : MonoBehaviour {
             if (MapController.mapC.spawnMonsters)
             {
                 Debug.Log("Spawning Monsters");
-                EnemyController.enemyC.spawnMonsters();
+                EnemyController.enemyC.spawnMonsters(level);
 
                 Ability monsterAttack = new Ability("Attack", false, false, 1, 1, false, 0, 0, 0, 0, CHARACTER_TYPE.MONSTER);
 
@@ -97,11 +123,23 @@ public class GameController : MonoBehaviour {
             PlayerController.playerC.spawnPlayer(MapController.mapC.map.startPosition);
 
             gameReady = true;
+
+            if (SceneManager.GetActiveScene().name == "Dungeon")
+            {
+                Text t = GameObject.Find("CurrentLevel").GetComponent<Text>();
+                t.text = "Level: " + level;
+            } else
+            {
+                Debug.Log("Loading Map, Not a Dungeon, Scene " + SceneManager.GetActiveScene().name);
+            }
+
         }
     }
 
     public void unloadMap()
     {
+        
+        
         PlayerController.playerC.despawnPlayer();
         if (MapController.mapC.spawnMonsters)
             EnemyController.enemyC.despawnMonsters();
@@ -110,6 +148,6 @@ public class GameController : MonoBehaviour {
 
     // Update is called once per frame
     void Update () {
-
+        
     }
 }

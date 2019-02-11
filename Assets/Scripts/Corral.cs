@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -73,4 +74,35 @@ public class Corral {
         return v3;
     }
 
+    // May return null if monster does't exist.
+    public Monster getMonsterByID(int monsterID)
+    {
+        Monster m = monsters.Find(x => x.monsterID == monsterID);
+
+        return m;
+    }
+
+    internal void updateMonster(Player player)
+    {
+        Monster m = getMonsterByID(player.controllingMonster);
+
+        if (m != null)
+        {
+            Debug.Log("Monster: " + m.ToString());
+
+            m.level = player.level;
+            m.current_exp = player.current_exp;
+            m.next_exp = player.next_exp;
+
+            // See if the monster needs to level up.
+            m.levelUp();
+
+            Debug.Log("Monster exp after player: " + m.current_exp);
+        }
+        else
+        {
+            Debug.Log("Monster not found.");
+        }
+
+    }
 }

@@ -8,6 +8,10 @@ public enum MONSTER_EGGS { GOBLIN_EGG = 40, HOBGOBLIN_EGG = 10, ORC_EGG = 20, OR
 
 public class Monster : Character {
 
+    static int nrOfInstances = 0;
+
+    public int monsterID;
+
     Path_AStar pathAStar;
     Tile currTile;
     Tile nextTile;
@@ -19,11 +23,17 @@ public class Monster : Character {
     {
         this.stats = stats;
         eggSpawnChance = egg;
+        monsterID = Monster.nrOfInstances;
+        Monster.nrOfInstances++;
+
     }
     public Monster(Point p, string name, int health, CHARACTER_TYPE type, Vector3Int stats, double egg) : base(p.x, p.y, name, health, type)
     {
         this.stats = stats;
         eggSpawnChance = egg;
+        monsterID = Monster.nrOfInstances;
+        Monster.nrOfInstances++;
+
     }
 
     public override string ToString()
@@ -133,4 +143,5 @@ public class Monster : Character {
             }
         }
     }
+
 }

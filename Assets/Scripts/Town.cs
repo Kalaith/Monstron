@@ -15,10 +15,8 @@ public class Town : MonoBehaviour {
 
     public void enterDungeon()
     {
-        SceneManager.LoadScene("Dungeon");
-        GameController.game.level = 0;
-
-        GameController.game.loadMap();
+        SceneManager.LoadScene("Dungeon", LoadSceneMode.Single);
+        
     }
 
     public Dropdown dropdown1;
@@ -116,6 +114,10 @@ public class Town : MonoBehaviour {
         SpriteGenerator sg = ScriptableObject.CreateInstance<SpriteGenerator>();
         foreach(Monster mon in PlayerController.playerC.corral.monsters)
         {
+            // shouldn't need to do this here, but lets catch it before we display it to the player.
+            mon.levelUp();
+            mon.setNextLevel();
+
             GameObject monSprite = Instantiate(monPrefab);
             Sprite s = sg.addXMirror(sg.bytesToSprite(mon.texture));
 
@@ -125,13 +127,17 @@ public class Town : MonoBehaviour {
             GameObject childGreen = monSprite.transform.Find("txtGreenVal").gameObject;
             GameObject childBlue = monSprite.transform.Find("txtBlueVal").gameObject;
             GameObject childHealth = monSprite.transform.Find("txtHealthVal").gameObject;
-            
+            GameObject childExp = monSprite.transform.Find("txtExpVal").gameObject;
+
             childName.GetComponent<Text>().text = mon.name;
             childRed.GetComponent<Text>().text = mon.stats.x.ToString();
             childGreen.GetComponent<Text>().text = mon.stats.y.ToString();
             childBlue.GetComponent<Text>().text = mon.stats.z.ToString();
             childHealth.GetComponent<Text>().text = mon.max_health.ToString();
 
+            Debug.Log("Mon Exp: "+mon.current_exp);
+            childExp.GetComponent<Text>().text = (mon.current_exp+"/"+mon.next_exp);
+            
             childSprite.GetComponent<Image>().sprite = s;
             childSprite.GetComponent<Image>().color = new Color32((byte)mon.stats.x, (byte)mon.stats.y, (byte)mon.stats.z, 255); // monster.stats.x/255, monster.stats.y/255, monster.stats.z/255);
 
@@ -175,8 +181,5 @@ public class Town : MonoBehaviour {
         {
             textObject.text = "You can find monster eggs in the dungeon\n T to teleport, E to Attack (if your monster can attack) WASD to move";
         }
-
     }
-
-
 }

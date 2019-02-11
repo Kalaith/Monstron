@@ -8,6 +8,7 @@ public class Player : Character {
     public bool usingAbility;
     public Ability activeAbility;
     public List<Item> items;
+    public int controllingMonster;
 
     public void pickupItem(Item item)
     {
@@ -15,14 +16,25 @@ public class Player : Character {
     }
 
     // Coverts the monster into the current active player.
-    public static explicit operator Player(Monster v)
+    public void assignMonsterToPlayer(Monster mon)
     {
-        Player p = new Player(v.x, v.y, v.name, v.max_health, CHARACTER_TYPE.PLAYER);
-        p.texture = v.texture;
-        p.abilities = v.abilities;
-        p.stats = v.stats;
+        x = mon.x;
+        y = mon.y;
+        name = mon.name;
+        max_health = mon.max_health;
+        current_health = mon.max_health;
+
+        texture = mon.texture;
+        abilities = mon.abilities;
+        stats = mon.stats;
+
+        controllingMonster = mon.monsterID;
+
+        level = mon.level;
+        current_exp = mon.current_exp;
+        next_exp = mon.next_exp;
+
         Debug.Log("Monster Changed to active Player");
-        return p;
     }
 
     public void dropItem(Item item)

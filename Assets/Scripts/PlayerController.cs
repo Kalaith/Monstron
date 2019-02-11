@@ -37,7 +37,7 @@ public class PlayerController : MonoBehaviour {
     {
         if (player == null)
         {
-            player = new Player(p.x, p.y, "Slime", 10, CHARACTER_TYPE.PLAYER);
+            player = new Player(p.x, p.y, "SLIME", 10, CHARACTER_TYPE.PLAYER);
         }
         player.x = p.x;
         player.y = p.y;
@@ -65,7 +65,7 @@ public class PlayerController : MonoBehaviour {
     {
         if (player == null)
         {
-            player = new Player(0, 0, "Slime", 10, CHARACTER_TYPE.PLAYER);
+            player = new Player(0, 0, "SLIME", 10, CHARACTER_TYPE.PLAYER);
         }
     }
 

@@ -57,8 +57,7 @@ public class InputController : MonoBehaviour {
             {
                 // We have reached an teleport.
                 Debug.Log("Choosing to exit");
-                GameController.game.unloadMap();
-                SceneManager.LoadScene("Town");
+                GameController.game.leaveDungeon();
             }
             
 
@@ -123,8 +122,7 @@ public class InputController : MonoBehaviour {
         {
             // We have reached an teleport.
             Debug.Log("Standing on the exit");
-            GameController.game.unloadMap();
-            SceneManager.LoadScene("Town");
+            GameController.game.leaveDungeon();
         }
         // Debug.Log("X" + x + "Y" + y);
         // if its not an empty move then attempt to move each monster

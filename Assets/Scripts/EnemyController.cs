@@ -39,13 +39,13 @@ public class EnemyController : MonoBehaviour {
         
     }
 
-    public void spawnMonsters()
+    public void spawnMonsters(int current_level)
     {
         foreach (Room room in MapController.mapC.map.rooms)
         {
             Point p = room.getCenter();
             //Debug.Log("Spawn a monster at " + p.ToString());
-            addMonster(p);
+            addMonster(p, current_level);
         }
 
         
@@ -98,7 +98,7 @@ public class EnemyController : MonoBehaviour {
         m.abilities.Add(monsterAttack);
     }
 
-    public void addMonster(Point p)
+    public void addMonster(Point p, int level)
     {
         int monsterID = GameController.game.random.range(1, monsterSprites.Count + 1);
         string name = "";
@@ -148,6 +148,14 @@ public class EnemyController : MonoBehaviour {
 
 
         Monster monster = new Monster(p, name, health, CHARACTER_TYPE.MONSTER, stats, eggSpawnChance);
+
+        // Setup monster details, should these be done inside the monster.
+        monster.current_exp = 0;
+        monster.level = GameController.game.random.range(level-1, level+1);
+        monster.next_exp = monster.level * health;
+        monster.max_health = GameController.game.random.range(health, health+level);
+        monster.current_health = monster.max_health;
+
         GameObject monsterGO = new GameObject();
 
         monsterGO.name = monster.name;

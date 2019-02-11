@@ -15,8 +15,13 @@ public class Character {
     public string name { get; set; }
     public CHARACTER_TYPE type { get; set; }
 
+
     public int max_health { get; set; } // Characters max health
     public int current_health { get; set; } // Characters current health
+
+    public int current_exp { get; set; }
+    public int next_exp { get; set; }
+    public int level { get; set; }
 
     public int attack { get; set; } // Attack/damage stat how much is removed on each hit.
     public CHARACTER_FACING facing { get; set; }
@@ -25,6 +30,25 @@ public class Character {
     public byte[] texture { get; set; }
 
     public List<Ability> abilities;
+
+    public void levelUp()
+    {
+        if (current_health > 0)
+        {
+            while (current_exp >= next_exp)
+            {
+                level++;
+                current_exp -= next_exp;
+                max_health += (max_health / level);
+                current_health = max_health;
+                setNextLevel();
+                Debug.Log(name+" leveled up!");
+            }
+        } else
+        {
+            Debug.Log("Can't level up if dead.");
+        }
+    }
 
     public void addAbility(Ability a)
     {
@@ -66,6 +90,8 @@ public class Character {
         facing = CHARACTER_FACING.DOWN;
         abilities = new List<Ability>();
 
+        setNextLevel();
+
     }
 
     public void takeDamage(int damage) {
@@ -75,5 +101,23 @@ public class Character {
     public override string ToString()
     {
         return "Monster " + stats.ToString();
+    }
+
+    // Set the experience for the next level, currently based of level * health so stronger monsters will take longer to level up.
+    internal void setNextLevel()
+    {
+        // if its a new monster level might not have been set.
+        if (level == 0)
+        {
+            current_exp = 0;
+            level = 1;
+        }
+
+        next_exp = level * max_health;
+
+        if(next_exp == 0)
+        {
+            Debug.Log("0 next_exp: "+level+" - "+max_health);
+        }
     }
 }

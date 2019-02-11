@@ -9,7 +9,8 @@ public class SelectedMonster : MonoBehaviour {
 	public void selectedMon()
     {
         Debug.Log("You have selected "+monster.name);
-        PlayerController.playerC.player = (Player)monster;
+
+        PlayerController.playerC.player.assignMonsterToPlayer(monster);
         Debug.Log(PlayerController.playerC.player.stats.ToString());
     }
 }
