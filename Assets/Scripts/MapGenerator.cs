@@ -12,6 +12,8 @@ public class MapGenerator {
     int width;
     int height;
     int rooms;
+    List<Tile> placedTiles;
+    List<Tile> potentialTiles;
 
     public MapGenerator(RandomGen rand, int width, int height, int rooms)
     {
@@ -20,6 +22,8 @@ public class MapGenerator {
         this.width = width;
         this.height = height;
         this.rooms = rooms;
+        placedTiles = new List<Tile>();
+        potentialTiles = new List<Tile>();
     }
 
     public Map createTownMap()
@@ -45,18 +49,122 @@ public class MapGenerator {
         genMap = new Map(width, height);
         genMap.fillMap(TILE_TYPE.Wall);
 
+        // create the rooms and add doors
+        // A better way of doing this would be to split it into segments and then create a room per segment.
+
         createRooms();
-        createMaze();
+
+        genMap.addOutsideWall();
+        placeOutsideWalls();
+
+        // we have rooms, need a path to go between them
+        createPath();
+
         addRoomDoors();
+
+        //
+        // create a maze wth left over space, lets try and make sure the maze is connected to all rooms.
+        //createMaze();
+
+        // Create code to fill in needed space that does not block an exisiting path
+        // fill dead space.
+
         addTeleport();
         addExit();
         //createCorridors();
-        genMap.addOutsideWall();
 
         return genMap;
     }
 
+    private void createPath()
+    {
+        int mx;
+        int my;
+        Tile tile;
 
+        // choose a random starting position, make sure its not also inside a room or room wall
+        do { 
+            mx = rand.range(1, genMap.Width - 1);
+            my = rand.range(1, genMap.Height - 1);
+
+            tile = genMap.getTileAt(mx, my);
+        } while (placedTiles.Contains(tile));
+
+        genMap.startPosition = tile.point;
+
+        potentialTiles.Add(tile);
+        int inf = 0;
+        do
+        {
+            tile = potentialTiles[rand.range(0, potentialTiles.Count)];
+            //Debug.Log("Looking at tile: " + tile.ToString());
+
+            if (tile.Type != TILE_TYPE.Floor)
+            {
+                tile.Type = TILE_TYPE.Corridor;
+            }
+
+            placedTiles.Add(tile);
+            potentialTiles.Remove(tile);
+
+            List<Tile> neigh = genMap.getNeighbours(tile, false);
+            foreach (Tile n in neigh)
+            {
+                //Debug.Log("Looking at Potential:" + n.ToString());
+                if (!placedTiles.Contains(n))
+                {
+
+                    // if its a floor then we are inside the room, add the tile as a potential
+                    // because if we dont then we can't select any of the cells around it, some of which
+                    // may be a way to get to the rest of the dungeon.
+
+                    if(tilesTouchingTile(n) > 1)
+                    {
+                        placedTiles.Add(n);
+                        // it may have been a potential option from another tile
+                        // because we have placed near it, it is now cosidered locked in.
+                        potentialTiles.Remove(n);
+                        //Debug.Log("Removed potential tile was conflicts: "+n.ToString());
+                    } else
+                    {
+                        // we want to add a potential if there is even one option available..
+                        // we do not want to remove a  
+                        potentialTiles.Add(n);
+                        //Debug.Log("Potential Added:" + n.ToString());  
+                    }
+                } else
+                {
+                    //Debug.Log("Tile was already placed:" + n.ToString());
+                }
+            }
+            inf++;
+            // run enough times for each cell
+            if(inf > (width*height))
+            {
+                Debug.Log("Stop at over 10");
+                potentialTiles.Clear();
+                break;
+            }
+            //Debug.Log("Potential Count: "+ potentialTiles.Count);
+        } while (potentialTiles.Count != 0);
+    }
+
+    public int tilesTouchingTile(Tile t, TILE_TYPE type = TILE_TYPE.Corridor)
+    {
+        List<Tile> neighbours = genMap.getNeighbours(t);
+        int touches = 0;
+        foreach (Tile touch in neighbours)
+        {
+            if(touch.Type == type)
+            {
+                touches++;
+            }
+        }
+
+        //Debug.Log(t.ToString()+" matches "+ touches);
+
+        return touches;
+    }
     // Generates a maze from wall tiles in a map.
     public void createMaze()
     {
@@ -99,8 +207,10 @@ public class MapGenerator {
             {
                 //Debug.Log(nextTile.ToString());
                 // are we going to run into the issue that every tile is filled out again..
-                nextTile.Type = TILE_TYPE.Corridor;
-
+                if (nextTile.Type == TILE_TYPE.Wall)
+                {
+                    nextTile.Type = TILE_TYPE.Corridor;
+                }
                 // this tile goes from potential to placed.
                 potentials.Remove(nextTile);
                 placedTiles.Add(nextTile);
@@ -137,16 +247,23 @@ public class MapGenerator {
     // Checks the tiles neighbours to ensure that the tile passed in is a valid potential
     public bool mazeCheckValidTile(Tile tile)
     {
+        // if its already a placed tile then it is a potential tile.
+        if(tile.Type == TILE_TYPE.Floor)
+        {
+            return true;
+        }
         List<Tile> wallCheck = genMap.getNeighbours(tile, true);
         // if there isn't 8 entries in the list then at least one entry was invalid so this can't be a potential target
         //Debug.Log("Tile "+tile.ToString()+" has "+wallCheck.Count+" neighbours");
+        int borders = 0;
+
         if (wallCheck.Count == 8)
         {
             // only allow one ground neighbour tile, this allows us to not care what the lead in tile is
             int groundCount = 0;
             foreach (Tile neighbour in wallCheck)
             {
-                if(neighbour.Type!=TILE_TYPE.Wall)
+                if(neighbour.Type!=TILE_TYPE.Wall && neighbour.Type != TILE_TYPE.Floor)
                 {
                     groundCount++;
                 }
@@ -197,85 +314,98 @@ public class MapGenerator {
             int starty = rand.range(0, height - roomHeight);
 
             // Add room returns true but for now we will ignore it and just aim for adding more rooms to account for some conflicts.
-            genMap.addRoom(startx, starty, roomWidth, roomHeight, rand.range(1, 6));
+            bool roomAdded = genMap.addRoom(startx, starty, roomWidth, roomHeight, rand.range(1, 6));
+
+            // Assign all tiles into the placed list, entry will later be removed, this is to stop the program from editing every second row.
+            if (roomAdded)
+            {
+                for (int x = startx; x < startx + roomWidth; x++)
+                {
+                    for (int y = starty; y < starty + roomHeight; y++)
+                    {
+                        placedTiles.Add(genMap.getTileAt(new Point(x, y)));
+                        //Debug.Log("Placing tile for room " + startx + ":" + starty + "|" + roomWidth + ":" + roomHeight + " Tile-" + x + ":" + y);
+                    }
+                }
+            }
 
         }
-
     }
-
-
 
     public void addRoomDoors(int max_connections = 0)
     {
-
         foreach (Room room in genMap.rooms)
         {
             if (max_connections == 0)
             {
                 max_connections = room.max_connections;
             }
-            int attempts = 0;
-            for (int i = room.connections; i < max_connections; i++)
+
+            Debug.Log("Room Doors: "+room.ToString());
+            List<int> direction = new List<int>();
+            direction.Add(0);
+            direction.Add(1);
+            direction.Add(2);
+            direction.Add(3);
+
+            //setup which directions we can choose from.
+            if (room.starty + room.height >= genMap.Height - 1)
             {
-                // find the direction to put the door
-                int dirRoom = rand.range(0, 3);
-                
-                // we need to stop the direction being one of the game borders
-                if(room.startx == 0)
-                {
-                    dirRoom = rand.range(0, 1);
-                }
-
-                if(room.starty == 0)
-                    dirRoom = rand.range(0, 1);
-
-                if(room.startx+room.width > genMap.Width-1)
-                    dirRoom = rand.range(2, 3);
-
-                if(room.starty+room.height > genMap.Height-1)
-                    dirRoom = rand.range(0, 1);
-
-                // find the point on that side to add the door
-                Point room1P = room.getDirPoint(dirRoom, rand);
-                // Do a check to see if the point we chose is touching a corridor
-                List<Tile> neighbours = genMap.getNeighbours(genMap.getTileAt(room1P));
-                bool valid = false;
-                foreach (Tile t in neighbours) { 
-                    // Look for a corridor if we dont find one then the point isn't good.
-                    if(t.Type == TILE_TYPE.Corridor)
-                    {
-                        valid = true;
-                        break;
-                    }
-                }
-                if (valid)
-                {
-                    genMap.GameMap[room1P.x, room1P.y].Type = TILE_TYPE.Corridor;
-                    room.connections++;
-                } else
-                {
-                    // repeat the loop so we try the connection again.. I can't see where it could enter a infinite loop because a room has 2 deep walls
-                    i--;
-                    attempts++;
-                    if(attempts > 10)
-                    {
-                        
-                        Debug.Log("Reached max attempts");
-                        break;
-                        
-                        
-                    }
-                }
-
-                // todo add a way to check its reached the maze..
+                direction.Remove(0);
+            }
+            if(room.startx+room.width >= genMap.Width-1)
+            {
+                direction.Remove(1);
+            }
+            if (room.starty <= 1)
+            {
+                direction.Remove(2);
+            }
+            if (room.startx <= 1)
+            {
+                direction.Remove(3);
             }
 
-            // failed to make a connection and aborted
-            if(room.connections == 0)
+            for (int i = room.connections; i < max_connections; i++)
             {
-                // For now lets just remove all the walls
-                
-                genMap.removeRoomWalls(room);
+                bool valid;
+                Tile t;
+                int inf = 0;
+                // find an entry out of the room that will reach a corridor
+                do {
+                    valid = false;
+
+                    int pointDirection = direction[rand.range(0, direction.Count)];
+                    Point room1P = room.getDirPoint(pointDirection, rand);
+
+                    t = genMap.getTileAt(room1P);
+                    List<Tile> neighbours = genMap.getNeighbours(t);
+
+                    foreach (Tile neigh in neighbours)
+                    {
+                        // Look for a corridor if we dont find one then the point isn't good.
+                        if (neigh.Type == TILE_TYPE.Corridor)
+                        {
+                            valid = true;
+                            break;
+                        }
+                    }
+                    inf++;
+                    if (inf > 100)
+                    {
+                        Debug.Log(inf+" attempts and failed to find an valid entry.. will need something else.");
+                        break;
+                    } 
+                } while (!valid ) ;
+
+                t.Type = TILE_TYPE.Corridor;
+                placedTiles.Remove(t);
+                Debug.Log(room.ToString()+ " Connections "+ max_connections + " Added entry: " + t.ToString());
+
+                // we dont add to potential because then we dont start multiple paths that wont connect to eachother
+                //potentialTiles.Add(t);
+
+                room.connections++;
             }
         }
     }
@@ -514,7 +644,21 @@ public class MapGenerator {
         
     }
 
-
+    // does this really need to be here?..
+    private void placeOutsideWalls()
+    {
+        //Debug.Log("Filling a map with W" + width+"H"+height);
+        for (int x = 0; x < genMap.Width; x++)
+        {
+            for (int y = 0; y < genMap.Height; y++)
+            {
+                if (x == 0 || y == 0 || x == genMap.Width - 1 || y == genMap.Height - 1)
+                {
+                    placedTiles.Add(genMap.getTileAt(x, y));
+                }
+            }
+        }
+    }
 }
 
 

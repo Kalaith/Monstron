@@ -110,7 +110,7 @@ public class Map {
     }
 
     // Should this be deciding if to add a room or not.
-    public void addRoom(int startx, int starty, int roomWidth, int roomHeight, int connections)
+    public bool addRoom(int startx, int starty, int roomWidth, int roomHeight, int connections)
     {
         if (rooms == null)
             rooms = new List<Room>();
@@ -131,7 +131,9 @@ public class Map {
             rooms.Add(newRoom);
             placeRoom(startx, starty, roomWidth, roomHeight);
             //Debug.Log("Room "+rooms.Count+"#"+newRoom.ToString());
+            return true;
         }
+        return false;
     }
 
     internal ITEM_TYPE getItemTypeAt(int x, int y)
@@ -316,4 +318,15 @@ public class Map {
             }
         }
     }
+
+    public bool isTilePartOfRoom(Tile t)
+    {
+        foreach(Room r in rooms)
+        {
+            if (r.inRoom(t.X, t.Y))
+                return true;
+        }
+        return false;
+    }
+    
 }

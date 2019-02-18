@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum TILE_TYPE {Empty, Ground, Wall, Corridor, Floor };
+public enum TILE_TYPE {Empty, Ground, Wall, Corridor, Floor, Entry };
 
 public class Tile  {
 

@@ -86,7 +86,7 @@ public class Room {
         if (dir == 3) // West
         {
             x = startx;
-            y = rand.range(starty, starty + height);
+            y = rand.range(starty+1, starty + height-1);
         }
 
         return new Point(x, y);
