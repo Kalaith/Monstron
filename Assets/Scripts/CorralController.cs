@@ -53,6 +53,9 @@ public class CorralController : MonoBehaviour
             Sprite s = sg.addXMirror(sg.bytesToSprite(mon.texture));
 
             GameObject childSprite = monSprite.transform.Find("monSprite").gameObject;
+
+            GameObject childLevel = monSprite.transform.Find("txtLevelVal").gameObject;
+
             GameObject childName = monSprite.transform.Find("monName").gameObject;
             GameObject childRed = monSprite.transform.Find("txtRedVal").gameObject;
             GameObject childGreen = monSprite.transform.Find("txtGreenVal").gameObject;
@@ -60,6 +63,7 @@ public class CorralController : MonoBehaviour
             GameObject childHealth = monSprite.transform.Find("txtHealthVal").gameObject;
             GameObject childExp = monSprite.transform.Find("txtExpVal").gameObject;
 
+            childLevel.GetComponent<Text>().text = mon.level.ToString();
             childName.GetComponent<Text>().text = mon.name;
             childRed.GetComponent<Text>().text = mon.stats.x.ToString();
             childGreen.GetComponent<Text>().text = mon.stats.y.ToString();
