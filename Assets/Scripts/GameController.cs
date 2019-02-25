@@ -10,13 +10,14 @@ public class GameController : MonoBehaviour {
     public static GameController game;
     public int level;
     public GameObject GameUI;
+    public int gameSeed = 0;
 
     private void Awake()
     {
         if (game == null)
         {
             DontDestroyOnLoad(gameObject);
-            random = new RandomGen(0);
+            random = new RandomGen(gameSeed);
             game = this;
         }
         else if (game != this)

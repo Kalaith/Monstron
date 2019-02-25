@@ -42,8 +42,9 @@ public class MapGenerator {
         return genMap;
     }
 
+
     public Map createDungeonMap()
-    { 
+    {
         Debug.Log("Creating dungeon a Map");
         // create a new map, assign the seed
         genMap = new Map(width, height);
@@ -59,18 +60,17 @@ public class MapGenerator {
 
         // we have rooms, need a path to go between them
         createPath();
-
         addRoomDoors();
 
+        // fill dead space.
+        fillInTiles(20);
         //
         // create a maze wth left over space, lets try and make sure the maze is connected to all rooms.
         //createMaze();
 
-        // Create code to fill in needed space that does not block an exisiting path
-        // fill dead space.
-
         addTeleport();
         addExit();
+
         //createCorridors();
 
         return genMap;
@@ -83,7 +83,7 @@ public class MapGenerator {
         Tile tile;
 
         // choose a random starting position, make sure its not also inside a room or room wall
-        do { 
+        do {
             mx = rand.range(1, genMap.Width - 1);
             my = rand.range(1, genMap.Height - 1);
 
@@ -118,7 +118,7 @@ public class MapGenerator {
                     // because if we dont then we can't select any of the cells around it, some of which
                     // may be a way to get to the rest of the dungeon.
 
-                    if(tilesTouchingTile(n) > 1)
+                    if (tilesTouchingTile(n) > 1)
                     {
                         placedTiles.Add(n);
                         // it may have been a potential option from another tile
@@ -139,7 +139,7 @@ public class MapGenerator {
             }
             inf++;
             // run enough times for each cell
-            if(inf > (width*height))
+            if (inf > (width * height))
             {
                 Debug.Log("Stop at over 10");
                 potentialTiles.Clear();
@@ -155,7 +155,7 @@ public class MapGenerator {
         int touches = 0;
         foreach (Tile touch in neighbours)
         {
-            if(touch.Type == type)
+            if (touch.Type == type)
             {
                 touches++;
             }
@@ -165,84 +165,54 @@ public class MapGenerator {
 
         return touches;
     }
-    // Generates a maze from wall tiles in a map.
-    public void createMaze()
+
+
+    // Out of all of the placed cells how many percs of tiles should it fill in,
+    // this will handle maps with non fixed dimentions 
+    public void fillInTiles(Double fillInPerc)
     {
-        // find available options for the next tile look at N, S, E, W remove any of these directions that are Ground
-        List<Tile> potentials = new List<Tile>();
-        List<Tile> placedTiles = new List<Tile>();
+        List<Tile> checkTiles = placedTiles;
 
-        // start from point x, y that is not against the edge or any square around it is not a ground tile.. change it to ground
-        int mx = 0;
-        int my = 0;
-        do
+        int tilesToFillIn = (int)Math.Floor(((fillInPerc / 100) * checkTiles.Count));
+        Debug.Log(checkTiles.Count+"::"+fillInPerc+ "Tiles to fill in:" +tilesToFillIn+" - "+ ((fillInPerc / 100)+1)+ "-" + ((fillInPerc / 100) * checkTiles.Count));
+
+        // two checks one for the amount we want to fill in the other for check cells
+        while (tilesToFillIn >= 0 && checkTiles.Count != 0)
         {
-            mx = rand.range(1, genMap.Width-1);
-            my = rand.range(1, genMap.Height-1);
-        } while (genMap.getTileTypeAt(mx, my) != TILE_TYPE.Wall);
-
-        Tile nextTile = genMap.GameMap[mx, my];
-        // we get a point anyways, lets use this for the player
-
-        nextTile.Type = TILE_TYPE.Corridor;
-        placedTiles.Add(nextTile);
-        Debug.Log("Placed " + placedTiles.Count + " Tile " + nextTile.point.ToString());
-        //Debug.Log("Starting Position: "+nextTile.ToString());
-        foreach (Tile tile in genMap.getNeighbours(nextTile))
-        {
-            if (mazeCheckValidTile(tile))
+            Tile t = checkTiles[rand.range(0, checkTiles.Count)];
+            // if only care about checking corridors, but avoid the players starting position
+            if (t.Type == TILE_TYPE.Corridor && t.point != genMap.startPosition)
             {
-                potentials.Add(tile);
-            }
-        }
-        //Debug.Log("Potentials from starting position"+potentials.Count);
-        // when we are looking at a tile we want to make sure it has 3 walls around it and no wall from the direction we came in only these rooms get added to potential
-        while (potentials.Count != 0)
-        {
-        //for (int i = 0; i < 3; i++)
-        //{
-            // choose one at random update the x, y position record the rest as potentials
-            nextTile = potentials[rand.range(0, potentials.Count)];
-            if (mazeCheckValidTile(nextTile))
-            {
-                //Debug.Log(nextTile.ToString());
-                // are we going to run into the issue that every tile is filled out again..
-                if (nextTile.Type == TILE_TYPE.Wall)
+                // check all the neighbours, a fill only qualiies if 3 sides are a wall because it then can't be blocking a path.
+                List<Tile> neigh = genMap.getNeighbours(t);
+                int walls = 0;
+                foreach(Tile n in neigh)
                 {
-                    nextTile.Type = TILE_TYPE.Corridor;
-                }
-                // this tile goes from potential to placed.
-                potentials.Remove(nextTile);
-                placedTiles.Add(nextTile);
-
-                List<Tile> potNeighbours = genMap.getNeighbours(nextTile);
-                //Debug.Log("Potential Neighbours Count " + potNeighbours.Count);
-                foreach (Tile t in potNeighbours)
-                {
-                    // dont check an already placed tile
-                    if (!placedTiles.Contains(t))
+                    if(n.Type == TILE_TYPE.Wall)
                     {
-                        if (mazeCheckValidTile(t))
-                        {
-                            //Debug.Log("Tile " + t.ToString() + " is a potential path");
-                            potentials.Add(t);
-                        }
+                        walls++;
                     }
                 }
+                if(walls == 3)
+                {
+                    t.Type = TILE_TYPE.Wall;
+                    // this function doesn't handle if it checked one cell and it didn't qualify and then after a fill it does qualify.
+                    // we could if this tile was filled add the non wall tile back into checkTiles so it can be rechecked.
+                    tilesToFillIn--;
+                    // this is no longer a potential starting position.
+                    placedTiles.Remove(t);
+                }
+                checkTiles.Remove(t);
+                
             } else
             {
-                potentials.Remove(nextTile);
+                checkTiles.Remove(t);
             }
         }
-        Debug.Log("Placed At: " + placedTiles[0].point.ToString());
-        genMap.startPosition = placedTiles[0].point;
-        //Debug.Log("We have this many potentials "+potentials.Count);
-
-        // repeat
-        // when there is no available options go back to previous potentials, recheck make sure we havn't ruled this out by other changes
-        // repeat until no futher potentials
-
     }
+
+
+
 
     // Checks the tiles neighbours to ensure that the tile passed in is a valid potential
     public bool mazeCheckValidTile(Tile tile)
@@ -302,6 +272,7 @@ public class MapGenerator {
         }
         genMap.Exit = t;
     }
+
 
     public void createRooms(int minWidth = 4, int minHeight = 4, int maxWidth = 10, int maxHeight = 10)
     {
@@ -658,6 +629,88 @@ public class MapGenerator {
                 }
             }
         }
+    }
+
+
+    // Generates a maze from wall tiles in a map.
+    // old generator, can't handle starts inside rooms
+    public void createMaze()
+    {
+        // find available options for the next tile look at N, S, E, W remove any of these directions that are Ground
+        List<Tile> potentials = new List<Tile>();
+        List<Tile> placedTiles = new List<Tile>();
+
+        // start from point x, y that is not against the edge or any square around it is not a ground tile.. change it to ground
+        int mx = 0;
+        int my = 0;
+        do
+        {
+            mx = rand.range(1, genMap.Width - 1);
+            my = rand.range(1, genMap.Height - 1);
+        } while (genMap.getTileTypeAt(mx, my) != TILE_TYPE.Wall);
+
+        Tile nextTile = genMap.GameMap[mx, my];
+        // we get a point anyways, lets use this for the player
+
+        nextTile.Type = TILE_TYPE.Corridor;
+        placedTiles.Add(nextTile);
+        Debug.Log("Placed " + placedTiles.Count + " Tile " + nextTile.point.ToString());
+        //Debug.Log("Starting Position: "+nextTile.ToString());
+        foreach (Tile tile in genMap.getNeighbours(nextTile))
+        {
+            if (mazeCheckValidTile(tile))
+            {
+                potentials.Add(tile);
+            }
+        }
+        //Debug.Log("Potentials from starting position"+potentials.Count);
+        // when we are looking at a tile we want to make sure it has 3 walls around it and no wall from the direction we came in only these rooms get added to potential
+        while (potentials.Count != 0)
+        {
+            //for (int i = 0; i < 3; i++)
+            //{
+            // choose one at random update the x, y position record the rest as potentials
+            nextTile = potentials[rand.range(0, potentials.Count)];
+            if (mazeCheckValidTile(nextTile))
+            {
+                //Debug.Log(nextTile.ToString());
+                // are we going to run into the issue that every tile is filled out again..
+                if (nextTile.Type == TILE_TYPE.Wall)
+                {
+                    nextTile.Type = TILE_TYPE.Corridor;
+                }
+                // this tile goes from potential to placed.
+                potentials.Remove(nextTile);
+                placedTiles.Add(nextTile);
+
+                List<Tile> potNeighbours = genMap.getNeighbours(nextTile);
+                //Debug.Log("Potential Neighbours Count " + potNeighbours.Count);
+                foreach (Tile t in potNeighbours)
+                {
+                    // dont check an already placed tile
+                    if (!placedTiles.Contains(t))
+                    {
+                        if (mazeCheckValidTile(t))
+                        {
+                            //Debug.Log("Tile " + t.ToString() + " is a potential path");
+                            potentials.Add(t);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                potentials.Remove(nextTile);
+            }
+        }
+        Debug.Log("Placed At: " + placedTiles[0].point.ToString());
+        genMap.startPosition = placedTiles[0].point;
+        //Debug.Log("We have this many potentials "+potentials.Count);
+
+        // repeat
+        // when there is no available options go back to previous potentials, recheck make sure we havn't ruled this out by other changes
+        // repeat until no futher potentials
+
     }
 }
 

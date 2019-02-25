@@ -52,7 +52,7 @@ public class Town : MonoBehaviour {
         monster2.GetComponent<Image>().color = new Color32((byte)mon2.stats.x, (byte)mon2.stats.y, (byte)mon2.stats.z, 255); // monster.stats.x/255, monster.stats.y/255, monster.stats.z/255);
 
         Debug.Log("Monster 1"+monster[dropdown1.value].ToString());
-        Debug.Log("Monster 1"+monster[dropdown2.value].ToString());
+        Debug.Log("Monster 2"+monster[dropdown2.value].ToString());
 
     }
 
@@ -140,47 +140,10 @@ public class Town : MonoBehaviour {
         breed.SetActive(false);
         breedEmpty.SetActive(false);
 
+        CorralController.corral.displayCorral();
+
         Debug.Log("View Corral");
-        // if we have viewed the corral before, wipe it first.
-        foreach(Transform child in corralContent.transform)
-        {
-            
-            Destroy(child.gameObject);
-        }
-
-        SpriteGenerator sg = ScriptableObject.CreateInstance<SpriteGenerator>();
-        foreach(Monster mon in PlayerController.playerC.corral.monsters)
-        {
-            // shouldn't need to do this here, but lets catch it before we display it to the player.
-            mon.levelUp();
-            mon.setNextLevel();
-
-            GameObject monSprite = Instantiate(monPrefab);
-            Sprite s = sg.addXMirror(sg.bytesToSprite(mon.texture));
-
-            GameObject childSprite = monSprite.transform.Find("monSprite").gameObject;
-            GameObject childName = monSprite.transform.Find("monName").gameObject;
-            GameObject childRed = monSprite.transform.Find("txtRedVal").gameObject;
-            GameObject childGreen = monSprite.transform.Find("txtGreenVal").gameObject;
-            GameObject childBlue = monSprite.transform.Find("txtBlueVal").gameObject;
-            GameObject childHealth = monSprite.transform.Find("txtHealthVal").gameObject;
-            GameObject childExp = monSprite.transform.Find("txtExpVal").gameObject;
-
-            childName.GetComponent<Text>().text = mon.name;
-            childRed.GetComponent<Text>().text = mon.stats.x.ToString();
-            childGreen.GetComponent<Text>().text = mon.stats.y.ToString();
-            childBlue.GetComponent<Text>().text = mon.stats.z.ToString();
-            childHealth.GetComponent<Text>().text = mon.max_health.ToString();
-
-            Debug.Log("Mon Exp: "+mon.current_exp);
-            childExp.GetComponent<Text>().text = (mon.current_exp+"/"+mon.next_exp);
-            
-            childSprite.GetComponent<Image>().sprite = s;
-            childSprite.GetComponent<Image>().color = new Color32((byte)mon.stats.x, (byte)mon.stats.y, (byte)mon.stats.z, 255); // monster.stats.x/255, monster.stats.y/255, monster.stats.z/255);
-
-            monSprite.GetComponent<SelectedMonster>().monster = mon;
-            monSprite.transform.SetParent(corralContent.transform, false);
-        }
+        
     }
 
     Text textObject;
