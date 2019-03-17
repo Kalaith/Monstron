@@ -132,6 +132,7 @@ public class MapController : MonoBehaviour {
         despawnExit();
         despawnTeleport();
         despawnItems();
+        
 
         map = null;
     }

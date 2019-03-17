@@ -38,19 +38,34 @@ public class GameController : MonoBehaviour {
 
         PlayerController.playerC.createPlayer();
 
+        assignPlayer();
+
+        if (SceneManager.GetActiveScene().name == "Dungeon")
+        {
+            loadMap();
+        }
+    }
+
+    public void assignPlayer()
+    {
         // when we first start given the player a monster and assign all the defaults.
         if (PlayerController.playerC.corral.corralMonsters() == 0)
         {
-            Debug.Log("Creating Initial Monster");
-            // Create inital ability and assign to both player (selected monster and the first monster)
-            Ability teleport = new Ability("Teleport", false, false, 0, 2, true, 0, 0, 0, 0, CHARACTER_TYPE.ALL, 5);
+            Debug.Log("Creating Initial Monster or Player has no monsters");
 
             // Create our inital monster
             Monster m = new Monster(new Point(0, 0), "SLIME", 10, CHARACTER_TYPE.MONSTER, new Vector3Int(255, 255, 255), 0);
 
             m.setNextLevel();
 
+            // Create inital ability and assign to both player (selected monster and the first monster)
+            Ability teleport = new Ability("Teleport", false, false, 0, 2, true, 0, 0, 0, 0, CHARACTER_TYPE.ALL, 5);
             m.addAbility(teleport);
+            
+            // Add the ability to the player since the monster is the only one that can be selected.
+            PlayerController.playerC.player.addAbility(teleport);
+            availableAbilities.Add(teleport);
+
             SpriteGenerator sg = ScriptableObject.CreateInstance<SpriteGenerator>();
             m.texture = sg.tex2dtobytes(PlayerController.playerC.playerSprite.texture);
 
@@ -59,16 +74,7 @@ public class GameController : MonoBehaviour {
             // Assign it to the players Corral
             PlayerController.playerC.corral.addMonster(m);
 
-            // Add the ability to the player since the monster is the only one that can be selected.
-            PlayerController.playerC.player.addAbility(teleport);
-            availableAbilities.Add(teleport);
         }
-
-        if(SceneManager.GetActiveScene().name == "Dungeon")
-        {
-            loadMap();
-        }
-
     }
 
     public void leaveDungeon()
@@ -83,6 +89,9 @@ public class GameController : MonoBehaviour {
             player.current_exp += (5*level);
             PlayerController.playerC.corral.updateMonster(player);
             player.current_health = player.max_health;
+            player.usingAbility = false;
+
+            player.resetAbilities();
 
             // Reset ability uses, for now just do teleport.
             Ability a = player.getAbility("Teleport");
@@ -95,6 +104,7 @@ public class GameController : MonoBehaviour {
         else
         {
             // if the monster died remove it from the corral.
+            Debug.Log("Player died, killing of monster");
             PlayerController.playerC.corral.removeMonster(PlayerController.playerC.corral.getMonsterByID(player.controllingMonster));
             player.controllingMonster = 0;
         }
@@ -106,7 +116,6 @@ public class GameController : MonoBehaviour {
     {
 
         level++;
-
 
         if (MapController.mapC != null)
         {
@@ -148,12 +157,15 @@ public class GameController : MonoBehaviour {
 
     public void unloadMap()
     {
-        
-        
         PlayerController.playerC.despawnPlayer();
         if (MapController.mapC.spawnMonsters)
             EnemyController.enemyC.despawnMonsters();
         MapController.mapC.despawnMap();
+        // if the player has died we need to leave the dungeon.
+        if (PlayerController.playerC.player.current_health <= 0)
+        {
+            leaveDungeon();
+        }
     }
 
     // Update is called once per frame

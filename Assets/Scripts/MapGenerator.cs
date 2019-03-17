@@ -371,7 +371,7 @@ public class MapGenerator {
 
                 t.Type = TILE_TYPE.Corridor;
                 placedTiles.Remove(t);
-                Debug.Log(room.ToString()+ " Connections "+ max_connections + " Added entry: " + t.ToString());
+                //Debug.Log(room.ToString()+ " Connections "+ max_connections + " Added entry: " + t.ToString());
 
                 // we dont add to potential because then we dont start multiple paths that wont connect to eachother
                 //potentialTiles.Add(t);

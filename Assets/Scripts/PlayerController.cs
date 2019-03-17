@@ -101,7 +101,7 @@ public class PlayerController : MonoBehaviour {
         }
         if (player != null && playerGO != null)
         {
-            float rotation = 0;
+            /*float rotation = 0;
             if (player.facing == CHARACTER_FACING.UP)
             {
                 rotation = 180;
@@ -117,7 +117,7 @@ public class PlayerController : MonoBehaviour {
             if (player.facing == CHARACTER_FACING.RIGHT)
             {
                 rotation = 90;
-            }
+            }*/
             //playerGO.transform.rotation = Quaternion.Euler(0, 0, rotation);
 
             playerGO.transform.position = new Vector3(player.x, player.y, 0);

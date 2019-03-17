@@ -119,4 +119,13 @@ public class Character {
             Debug.Log("0 next_exp: "+level+" - "+max_health);
         }
     }
+
+    // resets uses for abilities.
+    public void resetAbilities() 
+    {
+        foreach(Ability a in abilities)
+        {
+            a.current_uses = a.max_uses;
+        }
+    }
 }

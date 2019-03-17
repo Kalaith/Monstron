@@ -62,7 +62,7 @@ public class CorralController : MonoBehaviour
             GameObject childBlue = monSprite.transform.Find("txtBlueVal").gameObject;
             GameObject childHealth = monSprite.transform.Find("txtHealthVal").gameObject;
             GameObject childExp = monSprite.transform.Find("txtExpVal").gameObject;
-
+            
             childLevel.GetComponent<Text>().text = mon.level.ToString();
             childName.GetComponent<Text>().text = mon.name;
             childRed.GetComponent<Text>().text = mon.stats.x.ToString();
