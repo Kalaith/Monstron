@@ -68,8 +68,6 @@ public class Player : Character {
         stats = new Vector3Int(255, 255, 255);
         speed = 1;
         items = new List<Item>();
-
-
         Debug.Log("Player was created!!!!!!!!!!!!!!!!");
     }
 

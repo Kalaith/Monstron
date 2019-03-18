@@ -17,6 +17,7 @@ public class Room {
     // This is the number of entrances into the room
     public int max_connections;
     public int connections;
+    public int size;
 
     public Room(int startx, int starty, int width, int height, int connections, ROOM_TYPE type = ROOM_TYPE.EMPTY)
     {
@@ -25,7 +26,8 @@ public class Room {
         this.width = width;
         this.height = height;
         this.type = type;
-        this.max_connections = connections;
+        max_connections = connections;
+        size = width * height;
     }
 
     internal Point getCenter()

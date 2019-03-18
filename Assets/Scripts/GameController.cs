@@ -48,32 +48,31 @@ public class GameController : MonoBehaviour {
 
     public void assignPlayer()
     {
-        // when we first start given the player a monster and assign all the defaults.
-        if (PlayerController.playerC.corral.corralMonsters() == 0)
+        // when we first start given the player a monster and assign all the defaults or when the previous one was killed.
+        if (PlayerController.playerC.corral.monsters.Count == 0)
         {
             Debug.Log("Creating Initial Monster or Player has no monsters");
 
             // Create our inital monster
-            Monster m = new Monster(new Point(0, 0), "SLIME", 10, CHARACTER_TYPE.MONSTER, new Vector3Int(255, 255, 255), 0);
+            Monster mon = new Monster(new Point(0, 0), "SLIME", 10, CHARACTER_TYPE.MONSTER, new Vector3Int(255, 255, 255), 0);
 
-            m.setNextLevel();
+            mon.setNextLevel();
 
             // Create inital ability and assign to both player (selected monster and the first monster)
             Ability teleport = new Ability("Teleport", false, false, 0, 2, true, 0, 0, 0, 0, CHARACTER_TYPE.ALL, 5);
-            m.addAbility(teleport);
+            mon.addAbility(teleport);
             
-            // Add the ability to the player since the monster is the only one that can be selected.
-            PlayerController.playerC.player.addAbility(teleport);
-            availableAbilities.Add(teleport);
-
             SpriteGenerator sg = ScriptableObject.CreateInstance<SpriteGenerator>();
-            m.texture = sg.tex2dtobytes(PlayerController.playerC.playerSprite.texture);
-
-            PlayerController.playerC.player.texture = m.texture;
+            mon.texture = sg.tex2dtobytes(PlayerController.playerC.playerSprite.texture);
+            PlayerController.playerC.player.texture = mon.texture;
 
             // Assign it to the players Corral
-            PlayerController.playerC.corral.addMonster(m);
-
+            PlayerController.playerC.corral.addMonster(mon);
+            PlayerController.playerC.player.assignMonsterToPlayer(mon);
+        } else
+        {
+            // reassign the monster to the player.. this looks like it could be shorter.
+             PlayerController.playerC.player.assignMonsterToPlayer(PlayerController.playerC.corral.getMonsterByID(PlayerController.playerC.player.controllingMonster));
         }
     }
 
@@ -85,10 +84,12 @@ public class GameController : MonoBehaviour {
         // if the monster manages to exit the dungeon give them 5 exp per floor.
         if (player.current_health > 0)
         {
-            Debug.Log("Left the dungeon, exp: "+(5*level));
+            Debug.Log("Left the dungeon, exp: "+(5*level)); // TODO remove constant values
             player.current_exp += (5*level);
-            PlayerController.playerC.corral.updateMonster(player);
             player.current_health = player.max_health;
+            level = 0;
+            PlayerController.playerC.corral.updateMonster(player);
+
             player.usingAbility = false;
 
             player.resetAbilities();
@@ -104,10 +105,14 @@ public class GameController : MonoBehaviour {
         else
         {
             // if the monster died remove it from the corral.
-            Debug.Log("Player died, killing of monster");
-            PlayerController.playerC.corral.removeMonster(PlayerController.playerC.corral.getMonsterByID(player.controllingMonster));
-            player.controllingMonster = 0;
+            Debug.Log("Player died, killed by monster");
+            level = 0;
+            PlayerController.playerC.removeMonster();
+            // dont get to keep items when you die.
+            PlayerController.playerC.player.emptyItems();
         }
+
+        Debug.Log("Moving to Town scene");
 
         SceneManager.LoadScene("Town");
     }
@@ -157,15 +162,13 @@ public class GameController : MonoBehaviour {
 
     public void unloadMap()
     {
+        Debug.Log("Unload map was called and player health was " + PlayerController.playerC.player.current_health);
         PlayerController.playerC.despawnPlayer();
         if (MapController.mapC.spawnMonsters)
             EnemyController.enemyC.despawnMonsters();
         MapController.mapC.despawnMap();
         // if the player has died we need to leave the dungeon.
-        if (PlayerController.playerC.player.current_health <= 0)
-        {
-            leaveDungeon();
-        }
+
     }
 
     // Update is called once per frame

@@ -37,10 +37,7 @@ public class PlayerController : MonoBehaviour {
 
     public void spawnPlayer(Point p)
     {
-        if (player == null)
-        {
-            player = new Player(p.x, p.y, "SLIME", 10, CHARACTER_TYPE.PLAYER);
-        }
+
         player.x = p.x;
         player.y = p.y;
 
@@ -101,25 +98,6 @@ public class PlayerController : MonoBehaviour {
         }
         if (player != null && playerGO != null)
         {
-            /*float rotation = 0;
-            if (player.facing == CHARACTER_FACING.UP)
-            {
-                rotation = 180;
-            }
-            if (player.facing == CHARACTER_FACING.LEFT)
-            {
-                rotation = -90;
-            }
-            if(player.facing == CHARACTER_FACING.DOWN)
-            {
-                rotation = 0;
-            }
-            if (player.facing == CHARACTER_FACING.RIGHT)
-            {
-                rotation = 90;
-            }*/
-            //playerGO.transform.rotation = Quaternion.Euler(0, 0, rotation);
-
             playerGO.transform.position = new Vector3(player.x, player.y, 0);
             Camera.main.transform.position = new Vector3(player.x, player.y, Camera.main.transform.position.z);
         }
@@ -129,7 +107,13 @@ public class PlayerController : MonoBehaviour {
     public void despawnPlayer()
     {
         Destroy(playerGO);
-        //player = null;
+    }
 
+    // Removes the monster assigned to the player because it died or was removed from the corral
+    public void removeMonster()
+    {
+        playerC.corral.removeMonster(PlayerController.playerC.corral.getMonsterByID(playerC.player.controllingMonster));
+        playerC.player.controllingMonster = 0;
+        despawnPlayer();
     }
 }

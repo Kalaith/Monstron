@@ -41,11 +41,35 @@ public class EnemyController : MonoBehaviour {
 
     public void spawnMonsters(int current_level)
     {
+        int monsterCount = MapController.mapC.map.rooms.Count;
+        Debug.Log("Monsters in dungeon: "+ monsterCount);
+        
         foreach (Room room in MapController.mapC.map.rooms)
         {
-            Point p = room.getCenter();
-            //Debug.Log("Spawn a monster at " + p.ToString());
-            addMonster(p, current_level);
+            Debug.Log("Room Size: " + room.size + " able to fit: "+(room.size / 20)+" monsters");
+            int monsters = room.size / 20; // TODO change remove the const 20
+            int placeMonsters = monsters;
+            if(monsters > monsterCount)
+            {
+                placeMonsters = monsterCount;
+            }
+            while (placeMonsters != 0)
+            {
+                Debug.Log("Placing Monsters" + placeMonsters);
+                Point p = room.getRandomLocation(GameController.game.random);
+                // TODO find a better method for placing monsters in the room so not on top of eachother or on walls.
+                //Debug.Log("Spawn a monster at " + p.ToString());
+                addMonster(p, current_level);
+                placeMonsters--;
+                monsterCount--; 
+
+            }
+            // we have placed enough monsters, end the script.
+            if(monsterCount <= 0)
+            {
+                Debug.Log("Monster limit reached");
+                break;
+            }
         }
 
         

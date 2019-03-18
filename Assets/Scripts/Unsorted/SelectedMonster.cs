@@ -11,7 +11,7 @@ public class SelectedMonster : MonoBehaviour {
     public void selectedMon()
     {
 
-        Debug.Log("You have selected "+monster.name);
+        Debug.Log("You have selected "+monster.monsterID+":"+monster.name);
 
         CorralController.corral.setSelectedMonster(thisMonster);
 
@@ -19,7 +19,7 @@ public class SelectedMonster : MonoBehaviour {
         Debug.Log(PlayerController.playerC.player.stats.ToString());
 
         thisMonster.GetComponent<Image>().color = new Color32(44, 58, 226, 100);
-
+        
 
     }
 }

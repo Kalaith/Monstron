@@ -93,7 +93,10 @@ public class CorralController : MonoBehaviour
     public void setSelectedMonster(GameObject newSelMonster)
     {
         // reset the previous selected monster back to normal
-        selectedMonster.GetComponent<Image>().color = new Color32(255, 255, 255, 100);
+        if (selectedMonster != null)
+        {
+            selectedMonster.GetComponent<Image>().color = new Color32(255, 255, 255, 100);
+        }
         selectedMonster = newSelMonster;
     }
 

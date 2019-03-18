@@ -121,6 +121,9 @@ public class MapController : MonoBehaviour {
 
     public void despawnMap()
     {
+
+        Debug.Log("Depspawning Map");
+
         mapReady = false;
         for (int x = 0; x < map.Width; x++)
         {
@@ -132,7 +135,8 @@ public class MapController : MonoBehaviour {
         despawnExit();
         despawnTeleport();
         despawnItems();
-        
+
+
 
         map = null;
     }

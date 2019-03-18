@@ -17,12 +17,16 @@ public class TownInputController : MonoBehaviour
         if (Input.GetKeyUp("c"))
         {
             // create a random monster
-            Monster m = new Monster(new Point(0, 0), "CHEATMON", 10, CHARACTER_TYPE.MONSTER, new Vector3Int(1, 1, 1), 1);
+            Monster mon = new Monster(new Point(0, 0), "CHEATMON", 10, CHARACTER_TYPE.MONSTER, new Vector3Int(1, 1, 1), 1);
+
+            // Create inital ability and assign to both player (selected monster and the first monster)
+            Ability teleport = new Ability("Teleport", false, false, 0, 2, true, 0, 0, 0, 0, CHARACTER_TYPE.ALL, 5);
+            mon.addAbility(teleport);
 
             SpriteGenerator sg = ScriptableObject.CreateInstance<SpriteGenerator>();
-            m.texture = sg.tex2dtobytes(PlayerController.playerC.playerSprite.texture);
+            mon.texture = sg.tex2dtobytes(PlayerController.playerC.playerSprite.texture);
 
-            PlayerController.playerC.corral.addMonster(m);
+            PlayerController.playerC.corral.addMonster(mon);
             Debug.Log("Creating a cheat monster");
         }
 

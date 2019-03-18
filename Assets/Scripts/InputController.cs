@@ -19,12 +19,7 @@ public class InputController : MonoBehaviour {
 
             if (PlayerController.playerC.player.current_health <= 0 && GameController.game.level > 0)
             {
-                PlayerController.playerC.player.current_health = PlayerController.playerC.player.max_health;
-                // They died, remove all the items
-                PlayerController.playerC.player.items.Clear();
-
-                GameController.game.level = 0;
-                GameController.game.unloadMap();
+                GameController.game.leaveDungeon();
                 SceneManager.LoadScene("Town");
 
             }

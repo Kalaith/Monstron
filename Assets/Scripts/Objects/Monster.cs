@@ -8,7 +8,7 @@ public enum MONSTER_EGGS { GOBLIN_EGG = 40, HOBGOBLIN_EGG = 10, ORC_EGG = 20, OR
 
 public class Monster : Character {
 
-    static int nrOfInstances = 0;
+    static int nrOfInstances = 1; // start at 1 so we can use 0 for no monster
 
     public int monsterID;
 

@@ -5,9 +5,9 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System;
 
-public class Town : MonoBehaviour {
+public class TownController : MonoBehaviour {
 
-    public GameObject text;
+    //public GameObject text;
     public GameObject dialog;
     public GameObject corral;
     public GameObject breed;
@@ -21,8 +21,16 @@ public class Town : MonoBehaviour {
 
     public void enterDungeon()
     {
-        SceneManager.LoadScene("Dungeon", LoadSceneMode.Single);
-        
+        if (PlayerController.playerC.player.controllingMonster == 0 && PlayerController.playerC.corral.monsters.Count != 0)
+        {
+            Debug.Log("Choose a monster before entering the dungeon.");
+        }
+        else
+        {
+            GameController.game.assignPlayer();
+            SceneManager.LoadScene("Dungeon", LoadSceneMode.Single);
+        }
+   
     }
 
     public Dropdown dropdown1;
@@ -45,11 +53,11 @@ public class Town : MonoBehaviour {
         Sprite sprite1 = sg.addXMirror(sg.bytesToSprite(mon1.texture));
         Sprite sprite2 = sg.addXMirror(sg.bytesToSprite(mon2.texture));
 
-        monster1.GetComponent<Image>().sprite = sprite1;
-        monster1.GetComponent<Image>().color = new Color32((byte)mon1.stats.x, (byte)mon1.stats.y, (byte)mon1.stats.z, 255); // monster.stats.x/255, monster.stats.y/255, monster.stats.z/255);
+        monster1.GetComponentInChildren<Image>().sprite = sprite1;
+        monster1.GetComponentInChildren<Image>().color = new Color32((byte)mon1.stats.x, (byte)mon1.stats.y, (byte)mon1.stats.z, 255); // monster.stats.x/255, monster.stats.y/255, monster.stats.z/255);
 
-        monster2.GetComponent<Image>().sprite = sprite2;
-        monster2.GetComponent<Image>().color = new Color32((byte)mon2.stats.x, (byte)mon2.stats.y, (byte)mon2.stats.z, 255); // monster.stats.x/255, monster.stats.y/255, monster.stats.z/255);
+        monster2.GetComponentInChildren<Image>().sprite = sprite2;
+        monster2.GetComponentInChildren<Image>().color = new Color32((byte)mon2.stats.x, (byte)mon2.stats.y, (byte)mon2.stats.z, 255); // monster.stats.x/255, monster.stats.y/255, monster.stats.z/255);
 
         Debug.Log("Monster 1"+monster[dropdown1.value].ToString());
         Debug.Log("Monster 2"+monster[dropdown2.value].ToString());
@@ -140,6 +148,8 @@ public class Town : MonoBehaviour {
         breed.SetActive(false);
         breedEmpty.SetActive(false);
 
+        GameController.game.assignPlayer();
+
         CorralController.corral.displayCorral();
 
         Debug.Log("View Corral");
@@ -153,10 +163,13 @@ public class Town : MonoBehaviour {
         textObject = dialog.GetComponent<Text>();
 
         // if they only have 1 monster and no items show the welcome screen
-        if (PlayerController.playerC.corral.corralMonsters() == 1 && PlayerController.playerC.player.items.Count == 0)
+        if (PlayerController.playerC.corral != null)
         {
-            // Going to assume if player isn't set first time loading the game.
-            textObject.text = "Welcome to Monstron!\n\n You have been given a monster but its weak\n use it to find a monster egg inside the dungeon \n\n Goodluck!\n You can use T to teleport short distances\n WASD to move\n";
+            if (PlayerController.playerC.corral.corralMonsters() == 1 && PlayerController.playerC.player.items.Count == 0)
+            {
+                // Going to assume if player isn't set first time loading the game.
+                textObject.text = "Welcome to Monstron!\n\n You have been given a monster but its weak\n use it to find a monster egg inside the dungeon \n\n Goodluck!\n You can use T to teleport short distances\n WASD to move\n";
+            }
         }
 
         if (PlayerController.playerC.player.items.Count > 0)
