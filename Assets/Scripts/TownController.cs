@@ -19,6 +19,11 @@ public class TownController : MonoBehaviour {
     public GameObject breedResultsName;
     public GameObject breedResultsSprite;
 
+    public void exitGame()
+    {
+        Application.Quit();
+    }
+
     public void enterDungeon()
     {
         if (PlayerController.playerC.player.controllingMonster == 0 && PlayerController.playerC.corral.monsters.Count != 0)
