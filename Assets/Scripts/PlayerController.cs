@@ -73,7 +73,13 @@ public class PlayerController : MonoBehaviour {
         if (AbilityUses != null && player != null)
         {
             Ability a = player.getAbility("Teleport");
-            AbilityUses.text = a.name+": " + a.current_uses + "/" + a.max_uses;
+            if (a != null)
+            {
+                AbilityUses.text = a.name + ": " + a.current_uses + "/" + a.max_uses;
+            } else
+            {
+                AbilityUses.text = "";
+            }
         }
         else
         {
