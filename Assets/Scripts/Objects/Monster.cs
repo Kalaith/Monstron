@@ -18,6 +18,7 @@ public class Monster : Character {
     Tile destTile;
 
     public double eggSpawnChance; // chance for an egg to spawn of this monster
+    internal bool ready;
 
     public Monster(int x, int y, string name, int health, CHARACTER_TYPE type, Vector3Int stats, double egg) : base(x, y, name, health, type)
     {
@@ -34,6 +35,12 @@ public class Monster : Character {
         monsterID = Monster.nrOfInstances;
         Monster.nrOfInstances++;
 
+    }
+
+    internal void Tick(float deltaTime)
+    {
+        // increment counter since last action.. if time is up set ready to true.
+        ready = false;
     }
 
     public override string ToString()
