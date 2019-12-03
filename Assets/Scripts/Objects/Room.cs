@@ -19,6 +19,9 @@ public class Room {
     public int connections;
     public int size;
 
+    // Monsters that are assigned to this room
+    public List<Monster> monsters;
+
     public Room(int startx, int starty, int width, int height, int connections, ROOM_TYPE type = ROOM_TYPE.EMPTY)
     {
         this.startx = startx;
@@ -28,6 +31,7 @@ public class Room {
         this.type = type;
         max_connections = connections;
         size = width * height;
+        monsters = new List<Monster>();
     }
 
     internal Point getCenter()
@@ -92,6 +96,11 @@ public class Room {
         }
 
         return new Point(x, y);
+    }
+
+    internal void placeMonster(Monster m)
+    {
+        monsters.Add(m);
     }
 
     public static bool operator ==(Room r1, Room r2)

@@ -39,39 +39,55 @@ public class EnemyController : MonoBehaviour {
         
     }
 
+    // function will have a max amount of monsters = to level or a count of all rooms whichever is higher
     public void spawnMonsters(int current_level)
     {
-        int monsterCount = MapController.mapC.map.rooms.Count;
-        Debug.Log("Monsters in dungeon: "+ monsterCount);
-        
-        foreach (Room room in MapController.mapC.map.rooms)
+        // want to redo monsterCount so it starts small and gradually gets bigger
+        int maxMonsters = current_level + MapController.mapC.map.rooms.Count/2;
+        if (maxMonsters > MapController.mapC.map.rooms.Count)
         {
-            Debug.Log("Room Size: " + room.size + " able to fit: "+(room.size / 20)+" monsters");
-            int monsters = room.size / 20; // TODO change remove the const 20
-            int placeMonsters = monsters;
-            if(monsters > monsterCount)
-            {
-                placeMonsters = monsterCount;
-            }
-            while (placeMonsters != 0)
-            {
-                Debug.Log("Placing Monsters" + placeMonsters);
-                Point p = room.getRandomLocation(GameController.game.random);
-                // TODO find a better method for placing monsters in the room so not on top of eachother or on walls.
-                //Debug.Log("Spawn a monster at " + p.ToString());
-                addMonster(p, current_level);
-                placeMonsters--;
-                monsterCount--; 
-
-            }
-            // we have placed enough monsters, end the script.
-            if(monsterCount <= 0)
-            {
-                Debug.Log("Monster limit reached");
-                break;
-            }
+            Debug.Log("Level is above room count.");
+            maxMonsters = MapController.mapC.map.rooms.Count;
         }
+        Debug.Log("Max Monsters can fit in dungeon: "+ maxMonsters);
 
+        int totalPlaced = 0;
+        // keep placing monsters in rooms until we have enough
+        while (totalPlaced < maxMonsters)
+        {
+            foreach (Room room in MapController.mapC.map.rooms)
+            {
+                // depending on how many monsters to place want to have the chance of no monsters.
+                int monsters = (room.size / 20)-room.monsters.Count; // TODO change remove the const 20
+                Debug.Log("Room can fit "+monsters+" monsters");
+                if (monsters > 0)
+                {
+                    // for now add a little randomess to place monsters
+                    int place = GameController.game.random.range(0, 2);
+                    Debug.Log("To Place? "+place);
+                    if (place == 1)
+                    {
+                        Point p = room.getRandomLocation(GameController.game.random);
+                        // TODO find a better method for placing monsters in the room so not on top of eachother or on walls.
+                        Monster m = addMonster(p, current_level);
+                        room.placeMonster(m);
+                        totalPlaced++;
+                        Debug.Log("Monster Placed");
+                    }
+                }
+                if(totalPlaced > maxMonsters)
+                {
+                    break;
+                }
+            }
+            
+            // this is an infinity check, each loop will have the potential to place a monster in a room, and each room can have multiple monsters
+            // but say somehow we can only fit 7 monsters and the maxMonsters is 10 then we would be iterating forever to reach 10
+            // so instead remove the max by 1 every iteration.
+            maxMonsters--;
+            Debug.Log("Current maxMonsters "+maxMonsters);
+        }
+        Debug.Log("Finished placing monsters");
         
     }
 
@@ -122,7 +138,7 @@ public class EnemyController : MonoBehaviour {
         m.abilities.Add(monsterAttack);
     }
 
-    public void addMonster(Point p, int level)
+    public Monster addMonster(Point p, int level)
     {
         int monsterID = GameController.game.random.range(1, monsterSprites.Count + 1);
         string name = "";
@@ -204,6 +220,7 @@ public class EnemyController : MonoBehaviour {
         }
 
         monsters.Add(monster, monsterGO);
+        return monster;
     }
     List<Monster> removals = new List<Monster>();
 
