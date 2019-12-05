@@ -1,10 +1,12 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public enum ITEM_TYPE { NOTHING, EGG };
 
 // A generic item, currently contains classes for other item types.
+[Serializable]
 public class Item {
 
     public string name { get; set; }
@@ -26,6 +28,7 @@ public class Item {
 
 }
 
+[Serializable]
 public class Egg : Item
 {
     public Monster parent; // which monster did this come from

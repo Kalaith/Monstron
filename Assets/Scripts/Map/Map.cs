@@ -3,16 +3,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[Serializable]
 public class Map {
 
     int width;
     int height;
 
-    Tile[,] map;
+    public Tile[,] map;
     public List<Room> rooms;
     public Point startPosition;
-    Tile teleport; // teleport changes maps
-    Tile exit; // exit leaves the dungeon
+    public Tile teleport; // teleport changes maps
+    public Tile exit; // exit leaves the dungeon
 
     public List<Item> items; // items on the map
 

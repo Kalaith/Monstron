@@ -228,7 +228,6 @@ public class EnemyController : MonoBehaviour {
     void Update () {
         if (monsters != null)
         {
-            
             foreach (KeyValuePair<Monster, GameObject> mon in monsters)
             {
                 if (mon.Key.current_health <= 0)

@@ -3,7 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// List of monsters that the player has, will need to keep sprite information 
+// List of monsters that the player has, will need to keep sprite information
+[Serializable]
 public class Corral {
 
     public List<Monster> monsters;

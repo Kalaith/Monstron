@@ -1,10 +1,12 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public enum CHARACTER_TYPE {ALL, NPC, MONSTER, PLAYER };
 public enum CHARACTER_FACING {UP, DOWN, LEFT, RIGHT };
 
+[Serializable]
 public class Character {
 
     // Naive Hybrid Stats
@@ -29,6 +31,23 @@ public class Character {
     public byte[] texture { get; set; }
 
     public List<Ability> abilities;
+
+    public Character(int x, int y, string name, int health, CHARACTER_TYPE type)
+    {
+        this.x = x;
+        this.y = y;
+        this.name = name;
+        this.type = type;
+
+        max_health = health;
+        current_health = health;
+        speed = 1;
+        facing = CHARACTER_FACING.DOWN;
+        abilities = new List<Ability>();
+
+        setNextLevel();
+
+    }
 
     public void levelUp()
     {
@@ -74,23 +93,6 @@ public class Character {
     public bool hasAbility(Ability a)
     {
         return abilities.Contains(a);
-    }
-
-    public Character(int x, int y, string name, int health, CHARACTER_TYPE type)
-    {
-        this.x = x;
-        this.y = y;
-        this.name = name;
-        this.type = type;
-
-        max_health = health;
-        current_health = health;
-        speed = 1;
-        facing = CHARACTER_FACING.DOWN;
-        abilities = new List<Ability>();
-
-        setNextLevel();
-
     }
 
     public void takeDamage(int damage) {

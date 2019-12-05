@@ -109,6 +109,7 @@ public class InputController : MonoBehaviour {
 
     public void movePlayer(int x = 0, int y = 0)
     {
+        Debug.Log("Moving Player");
         PlayerController.playerC.player.x += x;
         PlayerController.playerC.player.y += y;
 
@@ -137,9 +138,11 @@ public class InputController : MonoBehaviour {
         // if its not an empty move then attempt to move each monster
         if (x != 0 || y != 0)
         {
+            Debug.Log("Turns:"+ turns+" Player Speed:"+ PlayerController.playerC.player.speed);
             turns++;
             if (turns == PlayerController.playerC.player.speed)
             {
+                Debug.Log("Monster Updates");
                 EnemyController.enemyC.updateMonsters();
                 turns = 0;
             }

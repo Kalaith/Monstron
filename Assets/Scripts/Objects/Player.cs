@@ -3,12 +3,22 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[Serializable]
 public class Player : Character {
 
     public bool usingAbility;
     public Ability activeAbility;
     public List<Item> items;
     public int controllingMonster;
+
+    public Player(int x, int y, string name, int health, CHARACTER_TYPE type) : base(x, y, name, health, type)
+    {
+        stats = new Vector3Int(255, 255, 255);
+        speed = 1;
+        items = new List<Item>();
+        Debug.Log("Player was created!!!!!!!!!!!!!!!!");
+    }
+
 
     public void pickupItem(Item item)
     {
@@ -23,6 +33,7 @@ public class Player : Character {
         name = mon.name;
         max_health = mon.max_health;
         current_health = mon.max_health;
+        speed = mon.speed;
 
         texture = mon.texture;
         abilities = mon.abilities;
@@ -61,14 +72,6 @@ public class Player : Character {
                 Debug.Log("No uses of ability left");
             }
         }
-    }
-
-    public Player(int x, int y, string name, int health, CHARACTER_TYPE type) : base(x, y, name, health, type)
-    {
-        stats = new Vector3Int(255, 255, 255);
-        speed = 1;
-        items = new List<Item>();
-        Debug.Log("Player was created!!!!!!!!!!!!!!!!");
     }
 
     // we can call this and pass in the ability, or assume we are using the current active ability

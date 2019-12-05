@@ -1,15 +1,17 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public enum TILE_TYPE {Empty, Ground, Wall, Corridor, Floor, Entry };
 
+[Serializable]
 public class Tile  {
 
-    TILE_TYPE type = TILE_TYPE.Empty;
-    int x;
-    int y;
-    int cost;
+    public TILE_TYPE type = TILE_TYPE.Empty;
+    public int x;
+    public int y;
+    public int cost;
     public Point point;
 
     public Tile(TILE_TYPE type, int x, int y)

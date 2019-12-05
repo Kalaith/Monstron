@@ -1,8 +1,10 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 // base class for abilities
+[Serializable]
 public class Ability {
     public string name;
     public bool passive; // is it an active or passive skill

@@ -6,6 +6,7 @@ using UnityEngine;
 public enum MONSTERS { GOBLIN, HOBGOBLIN, ORC, ORGE, GREMLIN};
 public enum MONSTER_EGGS { GOBLIN_EGG = 40, HOBGOBLIN_EGG = 10, ORC_EGG = 20, ORGE_EGG = 5, GREMLIN_EGG = 30 };
 
+[Serializable]
 public class Monster : Character {
 
     static int nrOfInstances = 1; // start at 1 so we can use 0 for no monster
@@ -13,9 +14,9 @@ public class Monster : Character {
     public int monsterID;
 
     Path_AStar pathAStar;
-    Tile currTile;
-    Tile nextTile;
-    Tile destTile;
+    public Tile currTile;
+    public Tile nextTile;
+    public Tile destTile;
 
     public double eggSpawnChance; // chance for an egg to spawn of this monster
     internal bool ready;
@@ -51,6 +52,7 @@ public class Monster : Character {
     // For now just move randomly, later we will want to add features such as target player and movemeent types like patrol
     public void moveMonster(Map map, Player player)
     {
+        Debug.Log("Moving Monster -");
         Tile mTile = map.getTileAt(x, y);
         Tile pTile = map.getTileAt(player.x, player.y);
         int distanceToPlayer = mTile.distanceToTile(new Point(pTile.X, pTile.Y));
