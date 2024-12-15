@@ -4,8 +4,19 @@ using System.Collections.Generic;
 using System.Globalization;
 using UnityEngine;
 
+public enum MonsterType
+{
+    Goblin = 1,
+    Gremlin = 2,
+    Hobgoblin = 3,
+    Orc = 4,
+    Orge = 5
+
+}
+
 // Should this be encounters instead?
-public class EnemyController : MonoBehaviour {
+public class EnemyController : MonoBehaviour
+{
 
     public static EnemyController enemyC;
 
@@ -25,31 +36,32 @@ public class EnemyController : MonoBehaviour {
     public Dictionary<Monster, GameObject> monsters;
     List<GameObject> goMonsters;
     public List<Sprite> monsterSprites;
-    public Dictionary<string, int> monsterDetails; 
+    public Dictionary<string, int> monsterDetails;
     GameController gc;
     SpriteGenerator sg;
 
     // Use this for initialization
-    void Start () {
+    void Start()
+    {
         // get a copy of the map controller so we know where we are placing enemies on the map
         gc = (GameController)FindObjectOfType(typeof(GameController));
 
         monsters = new Dictionary<Monster, GameObject>();
         sg = ScriptableObject.CreateInstance<SpriteGenerator>();
-        
+
     }
 
     // function will have a max amount of monsters = to level or a count of all rooms whichever is higher
     public void spawnMonsters(int current_level)
     {
         // want to redo monsterCount so it starts small and gradually gets bigger
-        int maxMonsters = current_level + MapController.mapC.map.rooms.Count/2;
+        int maxMonsters = current_level + MapController.mapC.map.rooms.Count / 2;
         if (maxMonsters > MapController.mapC.map.rooms.Count)
         {
             Debug.Log("Level is above room count.");
             maxMonsters = MapController.mapC.map.rooms.Count;
         }
-        Debug.Log("Max Monsters can fit in dungeon: "+ maxMonsters);
+        Debug.Log("Max Monsters can fit in dungeon: " + maxMonsters);
 
         int totalPlaced = 0;
         // keep placing monsters in rooms until we have enough
@@ -58,13 +70,13 @@ public class EnemyController : MonoBehaviour {
             foreach (Room room in MapController.mapC.map.rooms)
             {
                 // depending on how many monsters to place want to have the chance of no monsters.
-                int monsters = (room.size / 20)-room.monsters.Count; // TODO change remove the const 20
-                Debug.Log("Room can fit "+monsters+" monsters");
+                int monsters = (room.size / 20) - room.monsters.Count; // TODO change remove the const 20
+                Debug.Log("Room can fit " + monsters + " monsters");
                 if (monsters > 0)
                 {
                     // for now add a little randomess to place monsters
                     int place = GameController.game.random.range(0, 2);
-                    Debug.Log("To Place? "+place);
+                    Debug.Log("To Place? " + place);
                     if (place == 1)
                     {
                         Point p = room.getRandomLocation(GameController.game.random);
@@ -75,27 +87,27 @@ public class EnemyController : MonoBehaviour {
                         Debug.Log("Monster Placed");
                     }
                 }
-                if(totalPlaced > maxMonsters)
+                if (totalPlaced > maxMonsters)
                 {
                     break;
                 }
             }
-            
+
             // this is an infinity check, each loop will have the potential to place a monster in a room, and each room can have multiple monsters
             // but say somehow we can only fit 7 monsters and the maxMonsters is 10 then we would be iterating forever to reach 10
             // so instead remove the max by 1 every iteration.
             maxMonsters--;
-            Debug.Log("Current maxMonsters "+maxMonsters);
+            Debug.Log("Current maxMonsters " + maxMonsters);
         }
         Debug.Log("Finished placing monsters");
-        
+
     }
 
     public Monster getMonsterAt(int x, int y)
     {
-        foreach(Monster monster in monsters.Keys)
+        foreach (Monster monster in monsters.Keys)
         {
-            if(monster.x ==x && monster.y==y)
+            if (monster.x == x && monster.y == y)
             {
                 return monster;
             }
@@ -108,14 +120,40 @@ public class EnemyController : MonoBehaviour {
         foreach (Monster monster in monsters.Keys)
         {
             monster.moveMonster(MapController.mapC.map, PlayerController.playerC.player);
-        }
 
+            // Check for collision with player
+            if (IsMonsterTouchingPlayer(monster))
+            {
+                InitiateBattle(monster);
+                break;
+            }
+        }
     }
+    private void InitiateBattle(Monster enemyLeader)
+    {
+        // Get player's team
+        List<Monster> playerTeam = PlayerController.playerC.player.monsters;
+
+        // Start battle scene
+        SceneManager.LoadScene("BattleScene");
+
+        // Initialize battle with player team and enemy leader
+        battleController.InitializeBattle(
+            playerTeam,
+            enemyLeader,
+            GameController.game.level
+        );
+    }
+
+    private bool IsMonsterTouchingPlayer(Monster monster)
+    {
+        return monster.x == PlayerController.playerC.player.x &&
+               monster.y == PlayerController.playerC.player.y;
+    }
+
 
     public void addMonster(Monster monster)
     {
-        int monsterID = GameController.game.random.range(1, monsterSprites.Count + 1);
-
         GameObject monsterGO = new GameObject();
 
         monsterGO.name = monster.name;
@@ -123,16 +161,44 @@ public class EnemyController : MonoBehaviour {
         monsterGO.transform.position = new Vector3(monster.x, monster.y, 0);
         monsterGO.transform.SetParent(this.transform, true);
 
-
+        int monsterID = GameController.game.random.range(1, monsterSprites.Count + 1);
         monsterGO.GetComponent<SpriteRenderer>().sprite = sg.addXMirror(monsterSprites[monsterID]);
         monsterGO.GetComponent<SpriteRenderer>().sortingOrder = 5;
-        monsterGO.GetComponent<SpriteRenderer>().color = new Color32((byte)monster.stats.x, (byte)monster.stats.y, (byte)monster.stats.z, 255); // monster.stats.x/255, monster.stats.y/255, monster.stats.z/255);
+        monsterGO.GetComponent<SpriteRenderer>().color = new Color32((byte)monster.stats.x, (byte)monster.stats.y, (byte)monster.stats.z, 255);
 
         monster.texture = sg.tex2dtobytes(monsterSprites[monsterID].texture);
 
         monsters.Add(monster, monsterGO);
     }
 
+    private Monster CreateMonster(MonsterType monsterType)
+    {
+        switch (monsterType)
+        {
+            case MonsterType.Goblin:
+                return new Monster(
+                    x: 0,
+                    y: 0,
+                    name: CultureInfo.CurrentCulture.TextInfo.ToTitleCase(MONSTERS.GOBLIN.ToString()),
+                    health: 3,
+                    type: CHARACTER_TYPE.MONSTER,
+                    stats: new Vector3Int(255, 0, 0),
+                    egg: (double)MONSTER_EGGS.GOBLIN_EGG
+                );
+            case MonsterType.Gremlin:
+                return new Monster(
+                    x: 0,
+                    y: 0,
+                    name: CultureInfo.CurrentCulture.TextInfo.ToTitleCase(MONSTERS.GREMLIN.ToString()),
+                    health: 2,
+                    type: CHARACTER_TYPE.MONSTER,
+                    stats: new Vector3Int(0, 255, 0),
+                    egg: (double)MONSTER_EGGS.GREMLIN_EGG
+                );
+            default:
+                throw new ArgumentOutOfRangeException(nameof(monsterType), monsterType, null);
+        }
+    }
     internal void assignAbility(Monster m, Ability monsterAttack)
     {
         m.abilities.Add(monsterAttack);
@@ -191,9 +257,9 @@ public class EnemyController : MonoBehaviour {
 
         // Setup monster details, should these be done inside the monster.
         monster.current_exp = 0;
-        monster.level = GameController.game.random.range(level-1, level+1);
+        monster.level = GameController.game.random.range(level - 1, level + 1);
         monster.next_exp = monster.level * health;
-        monster.max_health = GameController.game.random.range(health, health+level);
+        monster.max_health = GameController.game.random.range(health, health + level);
         monster.current_health = monster.max_health;
 
         GameObject monsterGO = new GameObject();
@@ -214,8 +280,8 @@ public class EnemyController : MonoBehaviour {
         if (MapController.mapC.map.items.Count == 0)
         {
             int range = GameController.game.random.range(1, 100);
-            if(range < monster.eggSpawnChance)
-            MapController.mapC.map.items.Add(new Egg(monster.name+" Egg", 1.0, monster.x, monster.y, monster, 1, stats, ITEM_TYPE.EGG));
+            if (range < monster.eggSpawnChance)
+                MapController.mapC.map.items.Add(new Egg(monster.name + " Egg", 1.0, monster.x, monster.y, monster, 1, stats, ITEM_TYPE.EGG));
             Debug.Log("Item Added");
         }
 
@@ -225,7 +291,8 @@ public class EnemyController : MonoBehaviour {
     List<Monster> removals = new List<Monster>();
 
     // Update is called once per frame
-    void Update () {
+    void Update()
+    {
         if (monsters != null)
         {
             foreach (KeyValuePair<Monster, GameObject> mon in monsters)
@@ -258,13 +325,13 @@ public class EnemyController : MonoBehaviour {
                 }
             }
 
-            foreach(Monster mon in removals)
+            foreach (Monster mon in removals)
             {
                 despawnMonster(mon);
             }
             removals.Clear();
         }
-	}
+    }
 
     void despawnMonster(Monster m)
     {
@@ -276,7 +343,7 @@ public class EnemyController : MonoBehaviour {
     }
     public void despawnMonsters()
     {
-        foreach(KeyValuePair<Monster, GameObject> monster in monsters)
+        foreach (KeyValuePair<Monster, GameObject> monster in monsters)
         {
             // Destroy all the game objects
             Destroy(monster.Value);
@@ -288,12 +355,12 @@ public class EnemyController : MonoBehaviour {
 
     public void assignAbilities(Monster mon)
     {
-        foreach(Ability a in gc.availableAbilities)
+        foreach (Ability a in gc.availableAbilities)
         {
-            if(a.type == CHARACTER_TYPE.ALL || a.type == CHARACTER_TYPE.MONSTER)
+            if (a.type == CHARACTER_TYPE.ALL || a.type == CHARACTER_TYPE.MONSTER)
             {
                 mon.addAbility(a);
-            } 
+            }
         }
     }
 }

@@ -69,7 +69,6 @@ public class Map {
     // Init map with the type based in
     public void addOutsideWall()
     {
-        //Debug.Log("Filling a map with W" + width+"H"+height);
         for (int x = 0; x < width; x++)
         {
             for (int y = 0; y < height; y++)
@@ -79,8 +78,6 @@ public class Map {
                     map[x, y].Type = TILE_TYPE.Wall;
                     map[x, y].Cost = 0;
                 }
-                
-                //Debug.Log(map[x, y].ToString());
             }
         }
     }

@@ -3,11 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum MONSTERS { GOBLIN, HOBGOBLIN, ORC, ORGE, GREMLIN};
+public enum MONSTERS { GOBLIN, HOBGOBLIN, ORC, ORGE, GREMLIN };
 public enum MONSTER_EGGS { GOBLIN_EGG = 40, HOBGOBLIN_EGG = 10, ORC_EGG = 20, ORGE_EGG = 5, GREMLIN_EGG = 30 };
 
 [Serializable]
-public class Monster : Character {
+public class Monster : Character
+{
 
     static int nrOfInstances = 1; // start at 1 so we can use 0 for no monster
 
@@ -46,111 +47,113 @@ public class Monster : Character {
 
     public override string ToString()
     {
-        return name + ": Health: "+current_health+" Stats:"+ stats.ToString()+" Type:"+type.ToString();
+        return name + ": Health: " + current_health + " Stats:" + stats.ToString() + " Type:" + type.ToString();
     }
 
     // For now just move randomly, later we will want to add features such as target player and movemeent types like patrol
     public void moveMonster(Map map, Player player)
     {
         Debug.Log("Moving Monster -");
-        Tile mTile = map.getTileAt(x, y);
-        Tile pTile = map.getTileAt(player.x, player.y);
-        int distanceToPlayer = mTile.distanceToTile(new Point(pTile.X, pTile.Y));
-        // did we attack, if we did we dont also get to move.
-        bool attacked = false;
-        foreach (Ability a in abilities)
+        Tile currentTile = map.getTileAt(x, y);
+        Tile playerTile = map.getTileAt(player.x, player.y);
+        int distanceToPlayer = currentTile.distanceToTile(new Point(playerTile.X, playerTile.Y));
+
+        if (TryAttackPlayer(player, currentTile, playerTile, distanceToPlayer))
+            return;
+
+        MoveTowardsTarget(map, currentTile, playerTile, distanceToPlayer);
+    }
+
+    private bool TryAttackPlayer(Player player, Tile currentTile, Tile playerTile, int distance)
+    {
+        foreach (Ability ability in abilities)
         {
-            if(!a.passive && a.range >= distanceToPlayer && mTile.tileDiagonal(new Point(pTile.X, pTile.Y)))
+            if (!ability.passive && ability.range >= distance && currentTile.tileDiagonal(new Point(playerTile.X, playerTile.Y)))
             {
-                player.current_health = player.current_health - a.damage;
-                attacked = true;
+                player.current_health -= ability.damage;
+                return true;
             }
         }
-        
-        //Debug.Log("Monster " + this.ToString() + " distance to player "+ mTile.distanceToTile(new Point(pTile.X, pTile.Y)));
-        if (!attacked)
+        return false;
+    }
+
+    private void MoveTowardsTarget(Map map, Tile currentTile, Tile targetTile, int distance)
+    {
+        if (distance < 10)
         {
-            if (distanceToPlayer < 10)
+            HandlePathfinding(map, currentTile, targetTile);
+        }
+        else
+        {
+            MoveRandomly(map);
+        }
+    }
+
+    private void HandlePathfinding(Map map, Tile currentTile, Tile targetTile)
+    {
+        if (targetTile != destTile)
+        {
+            InitializeNewPath(map, currentTile, targetTile);
+        }
+
+        if (pathAStar != null && pathAStar.Length() != 0)
+        {
+            MoveAlongPath();
+        }
+    }
+
+    private void InitializeNewPath(Map map, Tile currentTile, Tile targetTile)
+    {
+        pathAStar = null;
+        destTile = targetTile;
+        pathAStar = new Path_AStar(map, currentTile, destTile);
+    }
+
+    private void MoveAlongPath()
+    {
+        nextTile = pathAStar.Dequeue();
+        x = nextTile.X;
+        y = nextTile.Y;
+    }
+
+    private void MoveRandomly(Map map)
+    {
+        for (int i = 0; i < speed; i++)
+        {
+            Vector2Int movement = GetRandomMovement();
+            if (IsValidMove(map, movement))
             {
-
-                //Debug.Log("Moving towards player");
-                //Debug.Log("Is player the same as destination" + (pTile != destTile));
-                //Debug.Log("pTile" + (pTile.ToString()));
-                //Debug.Log("destTile" + (pTile.ToString()));
-                // Player is close lets move in their direction
-                // we actually want to move next to the player not ontop off so will need to update this later.
-                if (pTile != destTile)
-                {
-                    pathAStar = null;
-
-                    destTile = pTile;
-                    pathAStar = new Path_AStar(map, mTile, destTile);
-                    //Debug.Log(pathAStar.ToString());
-                    //Debug.Log("Found Player, moving towards distance" + pathAStar.Length());
-                }
-
-                // Do we have a path to travel to
-                if (pathAStar != null && pathAStar.Length() != 0)
-                {
-
-                    nextTile = pathAStar.Dequeue();
-                    //Debug.Log("Moving to " + nextTile.ToString());
-                    x = nextTile.X;
-                    y = nextTile.Y;
-                }
-
-
-            }
-            else
-            {
-                // Do the below where its just a rando direction
-                // allow each monster to move as many times as it can for each time its move function is called
-                // this doesn't really allow good merging of activities but it will do for now.
-                for (int i = 0; i < speed; i++)
-                {
-                    int move = 0;
-                    int moveX = 0;
-                    int moveY = 0;
-                    // move to a random position, if its a wall we can't move.
-                    move = UnityEngine.Random.Range(0, 3) - 1;
-
-                    int direction = UnityEngine.Random.Range(0, 2);
-
-                    if (direction == 0)
-                    {
-                        moveX = move;
-                    }
-                    if (direction == 1)
-                    {
-                        moveY = move;
-                    }
-                    // we dont want to move diagonal unless we let the player do it as well.
-                    //Debug.Log("Monster Movement moveX"+moveX+" moveY"+moveY);
-                    if (map.getTileTypeAt(moveX + x, moveY + y) != TILE_TYPE.Wall && map.getTileTypeAt(moveX + x, moveY + y) != TILE_TYPE.Empty)
-                    {
-                        x += moveX;
-                        y += moveY;
-                    }
-
-                    if (moveX == -1)
-                    {
-                        facing = CHARACTER_FACING.LEFT;
-                    }
-                    if (moveX == 1)
-                    {
-                        facing = CHARACTER_FACING.RIGHT;
-                    }
-                    if (moveY == 1)
-                    {
-                        facing = CHARACTER_FACING.UP;
-                    }
-                    if (moveY == -1)
-                    {
-                        facing = CHARACTER_FACING.DOWN;
-                    }
-                }
+                ApplyMovement(movement);
+                UpdateFacingDirection(movement);
             }
         }
+    }
+
+    private Vector2Int GetRandomMovement()
+    {
+        int move = UnityEngine.Random.Range(0, 3) - 1;
+        int direction = UnityEngine.Random.Range(0, 2);
+        return direction == 0 ? new Vector2Int(move, 0) : new Vector2Int(0, move);
+    }
+
+    private bool IsValidMove(Map map, Vector2Int movement)
+    {
+        TILE_TYPE tileType = map.getTileTypeAt(movement.x + x, movement.y + y);
+        return tileType != TILE_TYPE.Wall && tileType != TILE_TYPE.Empty;
+    }
+
+    private void ApplyMovement(Vector2Int movement)
+    {
+        x += movement.x;
+        y += movement.y;
+    }
+
+    private void UpdateFacingDirection(Vector2Int movement)
+    {
+        if (movement.x < 0) facing = CHARACTER_FACING.LEFT;
+        else if (movement.x > 0) facing = CHARACTER_FACING.RIGHT;
+        else if (movement.y > 0) facing = CHARACTER_FACING.UP;
+        else if (movement.y < 0) facing = CHARACTER_FACING.DOWN;
     }
 
 }

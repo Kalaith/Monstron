@@ -2,120 +2,127 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MouseController : MonoBehaviour {
-
+public class MouseController : MonoBehaviour
+{
     GameObject selectGO;
     public Sprite select;
 
-	// Use this for initialization
-	void Start () {
+    // Update is called once per frame
+    void Update()
+    {
+        if (!ShouldProcessInput())
+            return;
 
+        Vector3 mousePos = GetAdjustedMousePosition();
+        ProcessAbility(mousePos);
     }
-	
-	// Update is called once per frame
-	void Update () {
-        if (Input.GetButtonDown("Fire1"))
+
+    private bool ShouldProcessInput()
+    {
+        return Input.GetMouseButtonDown(0) && PlayerController.playerC.player.usingAbility;
+    }
+
+    private Vector3 GetAdjustedMousePosition()
+    {
+        Vector3 mouse = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        mouse.x += 0.5f;
+        mouse.y += 0.5f;
+        return mouse;
+    }
+
+    private void ProcessAbility(Vector3 mousePos)
+    {
+        string abilityName = PlayerController.playerC.player.activeAbility.name;
+        switch (abilityName)
         {
-            if (PlayerController.playerC.player.usingAbility)
-            {
-                Vector3 mouse = Input.mousePosition;
+            case "Teleport":
+                HandleTeleport(mousePos);
+                break;
+            case "Attack":
+                HandleAttack(mousePos);
+                break;
+        }
+    }
+    
+    private void HandleTeleport(Vector3 mouse)
+    {
+        if (!IsValidPosition((int)mouse.x, (int)mouse.y))
+            return;
 
-                if (PlayerController.playerC.player.activeAbility.name == "Teleport")
-                {
+        Tile tile = MapController.mapC.map.getTileAt(new Point((int)mouse.x, (int)mouse.y));
+        if (PlayerController.playerC.player.activeAbility.range < tile.distanceToTile(new Point(PlayerController.playerC.player.x, PlayerController.playerC.player.y)))
+            return;
 
-                    mouse = Camera.main.ScreenToWorldPoint(mouse);
-                    mouse.x += 0.5f;
-                    mouse.y += 0.5f;
+        if (selectGO == null)
+            CreateSelectGO();
 
-                    //Debug.Log("Mouse Position " + mouse.ToString());
-                    if (MapController.mapC.map != null)
-                    {
-                        if (MapController.mapC.map.isPassable((int)mouse.x, (int)mouse.y))
-                        {
-                            // get the tile and see if the distance to the player is less then the range of the active ability, if it is then we can show the select box.
-                            Tile t = MapController.mapC.map.getTileAt(new Point((int)mouse.x, (int)mouse.y));
-                            //Debug.Log("Range Check"+ t.distanceToTile(new Point(PlayerController.playerC.player.x, PlayerController.playerC.player.y)));
-                            if (PlayerController.playerC.player.activeAbility.range >= t.distanceToTile(new Point(PlayerController.playerC.player.x, PlayerController.playerC.player.y)))
-                            {
-                                if (selectGO == null)
-                                {
-                                    selectGO = new GameObject();
-                                    selectGO.transform.SetParent(this.transform, true);
-                                    selectGO.AddComponent<SpriteRenderer>();
-                                    selectGO.GetComponent<SpriteRenderer>().sortingOrder = 5;
-                                    selectGO.GetComponent<SpriteRenderer>().sprite = select;
-                                }
-                                if (selectGO.transform.position == new Vector3((int)mouse.x, (int)mouse.y, 0))
-                                {
-                                    // we have clicked twice so we want to teleport.
-                                    Destroy(selectGO);
-                                    PlayerController.playerC.player.x = (int)mouse.x;
-                                    PlayerController.playerC.player.y = (int)mouse.y;
-                                    PlayerController.playerC.player.usedAbility();
+        if (selectGO.transform.position == new Vector3((int)mouse.x, (int)mouse.y, 0))
+        {
+            // Teleport action
+            Destroy(selectGO);
+            PlayerController.playerC.player.x = (int)mouse.x;
+            PlayerController.playerC.player.y = (int)mouse.y;
+            PlayerController.playerC.player.usedAbility();
+            MoveMonsters();
+        }
+        else
+        {
+            UpdateSelectGO(mouse);
+        }
+    }
 
-                                    //Debug.Log("Monsters "+EnemyController.enemyC.monsters.Count);
-                                    foreach (Monster monster in EnemyController.enemyC.monsters.Keys)
-                                    {
-                                        monster.moveMonster(MapController.mapC.map, PlayerController.playerC.player);
-                                    }
+    private bool IsValidPosition(int x, int y)
+    {
+        return MapController.mapC.map != null && MapController.mapC.map.isPassable(x, y);
+    }
 
-                                }
-                                else
-                                {
-                                    selectGO.name = "select_X" + (int)mouse.x + "Y" + (int)mouse.y;
-                                    selectGO.transform.position = new Vector3((int)mouse.x, (int)mouse.y, 0);
+    void HandleAttack(Vector3 mouse)
+    {
+        Monster monster = EnemyController.enemyC.getMonsterAt((int)mouse.x, (int)mouse.y);
+        if (monster == null)
+            return;
 
-                                }
+        Tile tile = MapController.mapC.map.getTileAt(new Point((int)mouse.x, (int)mouse.y));
+        if (PlayerController.playerC.player.activeAbility.range < tile.distanceToTile(new Point(PlayerController.playerC.player.x, PlayerController.playerC.player.y)))
+            return;
 
-                            }
-                        }
-                    }
-                }
-                if (PlayerController.playerC.player.activeAbility.name == "Attack")
-                {
+        if (selectGO == null)
+            CreateSelectGO();
 
+        if (selectGO.transform.position == new Vector3((int)mouse.x, (int)mouse.y, 0))
+        {
+            // Attack action
+            Destroy(selectGO);
+            monster.takeDamage(PlayerController.playerC.player.activeAbility.damage);
+            PlayerController.playerC.player.usingAbility = false;
+            EnemyController.enemyC.updateMonsters();
+        }
+        else
+        {
+            UpdateSelectGO(mouse);
+        }
+    }
 
-                    mouse = Camera.main.ScreenToWorldPoint(mouse);
-                    mouse.x += 0.5f;
-                    mouse.y += 0.5f;
+    void CreateSelectGO()
+    {
+        selectGO = new GameObject();
+        selectGO.transform.SetParent(this.transform, true);
+        SpriteRenderer renderer = selectGO.AddComponent<SpriteRenderer>();
+        renderer.sortingOrder = 5;
+        renderer.sprite = select;
+    }
 
-                    //Debug.Log("Mouse Position " + mouse.ToString());
-                    Monster m = EnemyController.enemyC.getMonsterAt((int)mouse.x, (int)mouse.y);
-                    if (m != null)
-                    {
-                        // get the tile and see if the distance to the player is less then the range of the active ability, if it is then we can show the select box.
-                        Tile t = MapController.mapC.map.getTileAt(new Point((int)mouse.x, (int)mouse.y));
-                        //Debug.Log("Range Check"+ t.distanceToTile(new Point(PlayerController.playerC.player.x, PlayerController.playerC.player.y)));
-                        if (PlayerController.playerC.player.activeAbility.range >= t.distanceToTile(new Point(PlayerController.playerC.player.x, PlayerController.playerC.player.y)))
-                        {
-                            if (selectGO == null)
-                            {
-                                selectGO = new GameObject();
-                                selectGO.transform.SetParent(this.transform, true);
-                                selectGO.AddComponent<SpriteRenderer>();
-                                selectGO.GetComponent<SpriteRenderer>().sortingOrder = 5;
-                                selectGO.GetComponent<SpriteRenderer>().sprite = select;
-                            }
-                            if (selectGO.transform.position == new Vector3((int)mouse.x, (int)mouse.y, 0))
-                            {
-                                // we have clicked twice so we want to teleport.
-                                Destroy(selectGO);
-                                m.takeDamage(PlayerController.playerC.player.activeAbility.damage);
-                                PlayerController.playerC.player.usingAbility = false;
+    void UpdateSelectGO(Vector3 mouse)
+    {
+        selectGO.name = $"select_X{(int)mouse.x}Y{(int)mouse.y}";
+        selectGO.transform.position = new Vector3((int)mouse.x, (int)mouse.y, 0);
+    }
 
-                                EnemyController.enemyC.updateMonsters();
-                            }
-                            else
-                            {
-                                selectGO.name = "select_X" + (int)mouse.x + "Y" + (int)mouse.y;
-                                selectGO.transform.position = new Vector3((int)mouse.x, (int)mouse.y, 0);
-
-                            }
-
-                        }
-                    }
-                }
-            }
+    void MoveMonsters()
+    {
+        foreach (Monster monster in EnemyController.enemyC.monsters.Keys)
+        {
+            monster.moveMonster(MapController.mapC.map, PlayerController.playerC.player);
         }
     }
 }

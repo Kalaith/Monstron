@@ -43,7 +43,7 @@ RenderSettings:
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
-  serializedVersion: 11
+  serializedVersion: 12
   m_GIWorkflowMode: 1
   m_GISettings:
     serializedVersion: 2
@@ -96,8 +96,10 @@ LightmapSettings:
     m_PVRFilteringAtrousPositionSigmaAO: 1
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
+    m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
-  m_UseShadowmask: 1
+  m_LightingSettings: {fileID: 4890085278179872738, guid: cd6ca0faa8e0fd44c8198e06ea209418,
+    type: 2}
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -117,6 +119,8 @@ NavMeshSettings:
     manualTileSize: 0
     tileSize: 256
     accuratePlacement: 0
+    maxJobWorkers: 0
+    preserveTilesOutsideBounds: 0
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
@@ -174,6 +178,8 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 0, g: 0, b: 0, a: 1}
   m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -202,10 +208,25 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1738188560}
     m_Modifications:
-    - target: {fileID: 2834769563731281672, guid: 833442eb13908774e835a1e49c8da720,
+    - target: {fileID: 801106155638424463, guid: 833442eb13908774e835a1e49c8da720,
         type: 3}
-      propertyPath: m_Name
-      value: MonsterPanel2
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 801106155638424463, guid: 833442eb13908774e835a1e49c8da720,
+        type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 801106155638424463, guid: 833442eb13908774e835a1e49c8da720,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -5.4499893
+      objectReference: {fileID: 0}
+    - target: {fileID: 1716936943004462574, guid: 833442eb13908774e835a1e49c8da720,
+        type: 3}
+      propertyPath: m_Value
+      value: 0.891
       objectReference: {fileID: 0}
     - target: {fileID: 2339660516060487902, guid: 833442eb13908774e835a1e49c8da720,
         type: 3}
@@ -312,30 +333,15 @@ PrefabInstance:
       propertyPath: m_Pivot.y
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 2834769563731281672, guid: 833442eb13908774e835a1e49c8da720,
+        type: 3}
+      propertyPath: m_Name
+      value: MonsterPanel2
+      objectReference: {fileID: 0}
     - target: {fileID: 8586748180456727595, guid: 833442eb13908774e835a1e49c8da720,
         type: 3}
       propertyPath: m_Text
       value: Monster 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 1716936943004462574, guid: 833442eb13908774e835a1e49c8da720,
-        type: 3}
-      propertyPath: m_Value
-      value: 0.891
-      objectReference: {fileID: 0}
-    - target: {fileID: 801106155638424463, guid: 833442eb13908774e835a1e49c8da720,
-        type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 801106155638424463, guid: 833442eb13908774e835a1e49c8da720,
-        type: 3}
-      propertyPath: m_AnchorMax.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 801106155638424463, guid: 833442eb13908774e835a1e49c8da720,
-        type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: -5.4499893
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 833442eb13908774e835a1e49c8da720, type: 3}
@@ -382,7 +388,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 256.27, y: -30.4}
+  m_AnchoredPosition: {x: 256.27, y: -30.399994}
   m_SizeDelta: {x: -512.5, y: -60.8}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &121147326
@@ -400,6 +406,8 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 0.392}
   m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -473,6 +481,8 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -551,6 +561,8 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 0.41509432, g: 0.13901745, b: 0.17302851, a: 1}
   m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -625,6 +637,8 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -846,6 +860,8 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -996,6 +1012,8 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -1077,6 +1095,8 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 0.392}
   m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -1175,6 +1195,8 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 0.41509432, g: 0.13901745, b: 0.17302851, a: 1}
   m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -1251,6 +1273,8 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -1309,7 +1333,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -255.70001, y: -30.4}
+  m_AnchoredPosition: {x: -255.70001, y: -30.399994}
   m_SizeDelta: {x: -511.5, y: -60.8}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &910539311
@@ -1327,6 +1351,8 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 0.392}
   m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -1467,6 +1493,8 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 0, g: 0, b: 0.41960785, a: 1}
   m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -1541,6 +1569,8 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -1661,6 +1691,8 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -1739,6 +1771,8 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 0.41509432, g: 0.13901745, b: 0.17302851, a: 1}
   m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -1895,6 +1929,8 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -1973,6 +2009,8 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 0, g: 0, b: 0.41960785, a: 1}
   m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -2046,6 +2084,8 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -2127,6 +2167,8 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 0.392}
   m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -2224,6 +2266,8 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -2291,10 +2335,25 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1738188560}
     m_Modifications:
-    - target: {fileID: 2834769563731281672, guid: 833442eb13908774e835a1e49c8da720,
+    - target: {fileID: 801106155638424463, guid: 833442eb13908774e835a1e49c8da720,
         type: 3}
-      propertyPath: m_Name
-      value: MonsterPanel3
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 801106155638424463, guid: 833442eb13908774e835a1e49c8da720,
+        type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 801106155638424463, guid: 833442eb13908774e835a1e49c8da720,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -5.4499817
+      objectReference: {fileID: 0}
+    - target: {fileID: 1716936943004462574, guid: 833442eb13908774e835a1e49c8da720,
+        type: 3}
+      propertyPath: m_Value
+      value: 0.381
       objectReference: {fileID: 0}
     - target: {fileID: 2339660516060487902, guid: 833442eb13908774e835a1e49c8da720,
         type: 3}
@@ -2401,30 +2460,15 @@ PrefabInstance:
       propertyPath: m_Pivot.y
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 2834769563731281672, guid: 833442eb13908774e835a1e49c8da720,
+        type: 3}
+      propertyPath: m_Name
+      value: MonsterPanel3
+      objectReference: {fileID: 0}
     - target: {fileID: 8586748180456727595, guid: 833442eb13908774e835a1e49c8da720,
         type: 3}
       propertyPath: m_Text
       value: Monster 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 1716936943004462574, guid: 833442eb13908774e835a1e49c8da720,
-        type: 3}
-      propertyPath: m_Value
-      value: 0.381
-      objectReference: {fileID: 0}
-    - target: {fileID: 801106155638424463, guid: 833442eb13908774e835a1e49c8da720,
-        type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 801106155638424463, guid: 833442eb13908774e835a1e49c8da720,
-        type: 3}
-      propertyPath: m_AnchorMax.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 801106155638424463, guid: 833442eb13908774e835a1e49c8da720,
-        type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: -5.4499817
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 833442eb13908774e835a1e49c8da720, type: 3}
@@ -2487,6 +2531,8 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 0, g: 0, b: 0.41960785, a: 1}
   m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -2521,10 +2567,25 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1738188560}
     m_Modifications:
-    - target: {fileID: 2834769563731281672, guid: 833442eb13908774e835a1e49c8da720,
+    - target: {fileID: 801106155638424463, guid: 833442eb13908774e835a1e49c8da720,
         type: 3}
-      propertyPath: m_Name
-      value: MonsterPanel1
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 801106155638424463, guid: 833442eb13908774e835a1e49c8da720,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -5.4499893
+      objectReference: {fileID: 0}
+    - target: {fileID: 801106155638424463, guid: 833442eb13908774e835a1e49c8da720,
+        type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1716936943004462574, guid: 833442eb13908774e835a1e49c8da720,
+        type: 3}
+      propertyPath: m_Value
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2339660516060487902, guid: 833442eb13908774e835a1e49c8da720,
         type: 3}
@@ -2631,30 +2692,15 @@ PrefabInstance:
       propertyPath: m_Pivot.y
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 2834769563731281672, guid: 833442eb13908774e835a1e49c8da720,
+        type: 3}
+      propertyPath: m_Name
+      value: MonsterPanel1
+      objectReference: {fileID: 0}
     - target: {fileID: 8586748180456727595, guid: 833442eb13908774e835a1e49c8da720,
         type: 3}
       propertyPath: m_Text
       value: Monster 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1716936943004462574, guid: 833442eb13908774e835a1e49c8da720,
-        type: 3}
-      propertyPath: m_Value
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 801106155638424463, guid: 833442eb13908774e835a1e49c8da720,
-        type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 801106155638424463, guid: 833442eb13908774e835a1e49c8da720,
-        type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: -5.4499893
-      objectReference: {fileID: 0}
-    - target: {fileID: 801106155638424463, guid: 833442eb13908774e835a1e49c8da720,
-        type: 3}
-      propertyPath: m_AnchorMax.x
-      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 833442eb13908774e835a1e49c8da720, type: 3}

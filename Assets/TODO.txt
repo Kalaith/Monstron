@@ -1,0 +1,28 @@
+Notes
+
+* Overall I find the initial 'roguelike' fun exploring the dungeon, so I guess the biggest thing is the running and no ability to really fight back
+* 
+
+Not fun
+* getting a goblin with 3 health and no teleport means leveling is impossible at the start.
+* perma death on non slime* boss
+* Health is to important, need to reduce how much you get, while adding in a defence option
+
+Bugs
+
+* Have a you have died screen
+* on the corral and can't select the second monster.. not that selecting does anything right now. can select now that have more then 1 monster, okay it was aspect instead.
+* enemies can go diaonal but players can't, skills would be okay, but movement should be fair.
+* I got a level 5 and im not sure how.. maybe the player and monster on the exit at the same time.
+
+Big Goals
+* Redo the breeding system to not just add two togheter
+* make the stats important
+* have a town you can walk around in, interact with villagers, shop and eventually build new buildings 
+* add traps to the ground
+* add items to pickup and use
+
+
+Done
+* Fix Fonts so they are readable * was just set to a small resolution
+* at 1/5 teleports and can't teleports * bad user, the gap was to far.
